@@ -1,0 +1,74 @@
+*{
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    text-align: center;
+}
+
+#board{
+    width: 60vw;
+    height: 56vh;
+    background-color: lightgray;
+    border:10px solid darkgray;
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 auto;
+    margin-top: 5%;
+}
+
+#board div{
+    width: 50px;
+    height: 50px;
+    border: 1px solid whitesmoke;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+
+}
+
+.clicked{
+    background-color: darkgray;
+}
+
+.bomb-1{
+    color: #FF0807;
+}
+
+.bomb-2{
+    color: #1F0021;
+}
+
+.bomb-3{
+    color: #FFF93B;
+}
+
+.bomb-4{
+    color: #F0F7F5;
+}
+
+.bomb-5{
+    color: #2228FF;
+}
+
+.bomb-6{
+    color: teal;
+}
+
+.bomb-7{
+    color: black;
+}
+
+.bomb-8{
+    color: gray;
+}
+
+
+#flag {
+    width: 8vw;
+    height: 8vh;
+    font-size: 30px;
+    background-color: lightgray;
+    border: solid gray 2px;
+    
+}
+
