@@ -24,6 +24,9 @@ function startGame(){
             //<div id="0-0"></div>
             let tile = document.createElement("div");
             tile.id = i.toString() + "-" + j.toString();
+            tile.setAttribute("class", "tile blank")
+            tile.addEventListener('mouseover', handleMouseOver);
+            tile.addEventListener('mouseout', handleMouseOut);
             // tile.addEventListener("click", clickTile);
             document.getElementById("board").append(tile);
             row.push(tile);
@@ -33,4 +36,52 @@ function startGame(){
 
     console.log(board);
 }
-      
+
+//=============================================
+//
+// Controls/Event Listeners
+//
+//=============================================
+let hoveredTile = null
+
+function handleMouseOver(event) {
+    // Update the currently hovered div
+    hoveredTile = event.target;
+    // console.log(hoveredTile)
+}
+
+function handleMouseOut(event) {
+    hoveredTile = null
+}
+
+document.addEventListener("keyup", function(e) {
+    if (e.key == " " ||
+        e.code == "Space"     
+    ) {
+        if(hoveredTile){
+            console.log('Space bar pressed over:', hoveredTile.id);
+        }
+        else{
+            console.log("Space bar pressed over nothing")
+        }
+    }
+});
+
+document.addEventListener("click", function(e) {
+    if(hoveredTile){
+        console.log('Left Click pressed over:', hoveredTile.id);
+    }
+    else{
+        console.log("Left Click pressed over nothing")
+    }
+});
+
+document.addEventListener("contextmenu", function(e) {
+    if(hoveredTile){
+        e.preventDefault();
+        console.log('Right Click pressed over:', hoveredTile.id);
+    }
+    else{
+        console.log("Right Click pressed over nothing")
+    }
+});
