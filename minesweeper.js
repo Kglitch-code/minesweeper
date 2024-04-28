@@ -93,10 +93,12 @@ document.addEventListener("keyup", function(e) {
         e.code == "Space"     
     ) {
         if(hoveredTile){
-            console.log('Space bar pressed over:', hoveredTile.id);
+            // console.log('Space bar pressed over:', hoveredTile.id);
+            let coords = hoveredTile.id.split("-");
+            spacePressed(parseInt(coords[0]), parseInt(coords[1]));
         }
         else{
-            console.log("Space bar pressed over nothing")
+            // console.log("Space bar pressed over nothing")
         }
     }
 });
@@ -104,13 +106,13 @@ document.addEventListener("keyup", function(e) {
 //Check for left click
 document.addEventListener("click", function(e) {
     if(hoveredTile){
-        console.log('Left Click pressed over:', hoveredTile.id);
+        // console.log('Left Click pressed over:', hoveredTile.id);
         let coords = hoveredTile.id.split("-");
         tileClear(parseInt(coords[0]), parseInt(coords[1]));
         // revealAll();
     }
     else{
-        console.log("Left Click pressed over nothing")
+        // console.log("Left Click pressed over nothing")
     }
 });
 
@@ -118,12 +120,12 @@ document.addEventListener("click", function(e) {
 document.addEventListener("contextmenu", function(e) {
     if(hoveredTile){
         e.preventDefault();
-        console.log('Right Click pressed over:', hoveredTile.id);
+        // console.log('Right Click pressed over:', hoveredTile.id);
         let coords = hoveredTile.id.split("-");
         tileFlag(parseInt(coords[0]), parseInt(coords[1]));
     }
     else{
-        console.log("Right Click pressed over nothing")
+        // console.log("Right Click pressed over nothing")
     }
 });
 
@@ -141,6 +143,22 @@ function getNearbyTilesNum(x, y){
             for(let j = y-1; j <= y+1; j++){
                 if(j >= 0 && j < columns){
                     if(mineLocation.includes(i+"-"+j)){
+                        num +=1;
+                    }
+                }
+            }
+        }
+    }
+    return num
+}
+
+function getNearbyFlagsNum(x, y){
+    let num = 0;
+    for(let i = x-1; i <= x+1; i++){
+        if(i >= 0 && i < rows){
+            for(let j = y-1; j <= y+1; j++){
+                if(j >= 0 && j < columns){
+                    if(board[i][j].className == "tile flag"){
                         num +=1;
                     }
                 }
@@ -183,6 +201,21 @@ function revealAll(didWin){
     }
 }
 
+function clearSurrounding(i, j){
+    //Check surrounding tiles
+    for(let k = i-1; k <= i+1; k++){
+        if(k >= 0 && k < rows){
+            for(let l = j-1; l <= j+1; l++){
+                if(l >= 0 && l < columns){
+                    if(k!=i || j!=l){
+                        tileClear(k, l)
+                    }
+                }
+            }
+        }
+    }
+}
+
 function tileClear(i, j){
     if(board[i][j].className == "tile blank"){
         if(mineLocation.includes(i+"-"+j)){
@@ -196,19 +229,7 @@ function tileClear(i, j){
             }
             else{//Num is 0
                 board[i][j].className = "tile clicked";
-
-                //Check surrounding tiles
-                for(let k = i-1; k <= i+1; k++){
-                    if(k >= 0 && k < rows){
-                        for(let l = j-1; l <= j+1; l++){
-                            if(l >= 0 && l < columns){
-                                if(k!=i || j!=l){
-                                    tileClear(k, l)
-                                }
-                            }
-                        }
-                    }
-                }
+                clearSurrounding(i, j); //Also clear surrounding tiles
             }
             squaresRemaining-=1;
             if (squaresRemaining <= 0){
@@ -231,6 +252,19 @@ function tileFlag(i, j){
         board[i][j].innerHTML = "";
         minesRemaining+=1;
         setMinesCount();
+    }
+    return;
+}
+
+function spacePressed(i, j){
+    if(board[i][j].className == "tile blank"){
+        tileFlag(i, j);
+    }
+    else if(board[i][j].className == "tile flag"){
+        tileFlag(i, j);
+    }
+    else if(board[i][j].innerHTML == getNearbyFlagsNum(i,j)){
+        clearSurrounding(i, j);
     }
     return;
 }
