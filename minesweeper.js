@@ -3,6 +3,8 @@ let rows = 9;
 let columns = 9;
 
 let mines = 10;
+let minesRemaining = mines;
+let squaresRemaining = rows*columns-mines;
 let mineLocation = [];
 let flag = false;
 
@@ -26,10 +28,14 @@ function addMines(){
     }
 }
 
+function setMinesCount(){
+    document.getElementById("minesCount").innerText = minesRemaining;
+}
+
 function startGame(){
 
     //counts the mines 
-    document.getElementById("minesCount").innerText = mines;
+    setMinesCount();
     addMines();
 
     //populates the board with blank divs
@@ -50,6 +56,18 @@ function startGame(){
     }
 
     console.log(board);
+}
+
+function winGame(){
+    revealAll(true);
+    alert("You Won")
+    return;
+}
+
+function LoseGame(){
+    revealAll(false);
+    alert("You Lost")
+    return;
 }
 
 //=============================================
@@ -133,13 +151,19 @@ function getNearbyTilesNum(x, y){
 }
 
 //Reveal the whole board 
-function revealAll(){
+function revealAll(didWin){
     for(let i = 0; i < board.length; i++){
         for(let j = 0; j < board[i].length; j++){
             if(board[i][j].className == "tile blank"){
                 if(mineLocation.includes(i+"-"+j)){
-                    board[i][j].className = "tile clicked";
-                    board[i][j].innerHTML = "💣";
+                    if(didWin){
+                        board[i][j].className = "tile flag";
+                        board[i][j].innerHTML = "🚩";
+                    }
+                    else{
+                        board[i][j].className = "tile clicked";
+                        board[i][j].innerHTML = "💣";
+                    }
                 }
                 else{
                     let num = getNearbyTilesNum(i, j);
@@ -162,7 +186,7 @@ function revealAll(){
 function tileClear(i, j){
     if(board[i][j].className == "tile blank"){
         if(mineLocation.includes(i+"-"+j)){
-            revealAll();
+            LoseGame();
         }
         else{
             let num = getNearbyTilesNum(i, j);
@@ -186,6 +210,10 @@ function tileClear(i, j){
                     }
                 }
             }
+            squaresRemaining-=1;
+            if (squaresRemaining <= 0){
+                winGame();
+            }
         }
     }
     return;
@@ -195,10 +223,14 @@ function tileFlag(i, j){
     if(board[i][j].className == "tile blank"){
         board[i][j].className = "tile flag";
         board[i][j].innerHTML = "🚩";
+        minesRemaining-=1;
+        setMinesCount();
     }
     else if(board[i][j].className == "tile flag"){
         board[i][j].className = "tile blank";
         board[i][j].innerHTML = "";
+        minesRemaining+=1;
+        setMinesCount();
     }
     return;
 }
