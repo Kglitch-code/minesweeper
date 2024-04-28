@@ -87,7 +87,9 @@ document.addEventListener("keyup", function(e) {
 document.addEventListener("click", function(e) {
     if(hoveredTile){
         console.log('Left Click pressed over:', hoveredTile.id);
-        revealAll();
+        let coords = hoveredTile.id.split("-");
+        tileClear(parseInt(coords[0]), parseInt(coords[1]));
+        // revealAll();
     }
     else{
         console.log("Left Click pressed over nothing")
@@ -155,6 +157,39 @@ function revealAll(){
             }
         }
     }
+}
+
+function tileClear(i, j){
+    if(board[i][j].className == "tile blank"){
+        if(mineLocation.includes(i+"-"+j)){
+            revealAll();
+        }
+        else{
+            let num = getNearbyTilesNum(i, j);
+            if(num != 0){
+                board[i][j].className = "tile clicked bomb-" + num;
+                board[i][j].innerHTML = num;
+            }
+            else{//Num is 0
+                board[i][j].className = "tile clicked";
+
+                //Check surrounding tiles
+                for(let k = i-1; k <= i+1; k++){
+                    if(k >= 0 && k < rows){
+                        for(let l = j-1; l <= j+1; l++){
+                            if(l >= 0 && l < columns){
+                                if(k!=i || j!=l){
+                                    tileClear(k, l)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return;
+}
 
 function tileFlag(i, j){
     if(board[i][j].className == "tile blank"){
