@@ -99,6 +99,8 @@ document.addEventListener("contextmenu", function(e) {
     if(hoveredTile){
         e.preventDefault();
         console.log('Right Click pressed over:', hoveredTile.id);
+        let coords = hoveredTile.id.split("-");
+        tileFlag(parseInt(coords[0]), parseInt(coords[1]));
     }
     else{
         console.log("Right Click pressed over nothing")
@@ -143,7 +145,7 @@ function revealAll(){
                         board[i][j].className = "tile clicked bomb-" + num;
                         board[i][j].innerHTML = num;
                     }
-                    else{
+                    else{ //Num is 0
                         board[i][j].className = "tile clicked";
                     }
                 }
@@ -153,4 +155,15 @@ function revealAll(){
             }
         }
     }
+
+function tileFlag(i, j){
+    if(board[i][j].className == "tile blank"){
+        board[i][j].className = "tile flag";
+        board[i][j].innerHTML = "🚩";
+    }
+    else if(board[i][j].className == "tile flag"){
+        board[i][j].className = "tile blank";
+        board[i][j].innerHTML = "";
+    }
+    return;
 }
