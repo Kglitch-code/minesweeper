@@ -59,16 +59,17 @@ function startGame(){
 //=============================================
 let hoveredTile = null
 
+// Update the currently hovered div
 function handleMouseOver(event) {
-    // Update the currently hovered div
     hoveredTile = event.target;
-    // console.log(hoveredTile)
 }
 
+//Remove currently hovered div once nothing is hovered
 function handleMouseOut(event) {
     hoveredTile = null
 }
 
+//Check for a key being released (Space bar)
 document.addEventListener("keyup", function(e) {
     if (e.key == " " ||
         e.code == "Space"     
@@ -82,15 +83,18 @@ document.addEventListener("keyup", function(e) {
     }
 });
 
+//Check for left click
 document.addEventListener("click", function(e) {
     if(hoveredTile){
         console.log('Left Click pressed over:', hoveredTile.id);
+        revealAll();
     }
     else{
         console.log("Left Click pressed over nothing")
     }
 });
 
+//Check for right click
 document.addEventListener("contextmenu", function(e) {
     if(hoveredTile){
         e.preventDefault();
@@ -100,3 +104,53 @@ document.addEventListener("contextmenu", function(e) {
         console.log("Right Click pressed over nothing")
     }
 });
+
+
+//=============================================
+//
+// Flagging+Clearing Controls
+//
+//=============================================
+
+function getNearbyTilesNum(x, y){
+    let num = 0;
+    for(let i = x-1; i <= x+1; i++){
+        if(i >= 0 && i < rows){
+            for(let j = y-1; j <= y+1; j++){
+                if(j >= 0 && j < columns){
+                    if(mineLocation.includes(i+"-"+j)){
+                        num +=1;
+                    }
+                }
+            }
+        }
+    }
+    return num
+}
+
+//Reveal the whole board 
+function revealAll(){
+    for(let i = 0; i < board.length; i++){
+        for(let j = 0; j < board[i].length; j++){
+            if(board[i][j].className == "tile blank"){
+                if(mineLocation.includes(i+"-"+j)){
+                    board[i][j].className = "tile clicked";
+                    board[i][j].innerHTML = "💣";
+                }
+                else{
+                    let num = getNearbyTilesNum(i, j);
+                    if(num != 0){
+                        board[i][j].className = "tile clicked bomb-" + num;
+                        board[i][j].innerHTML = num;
+                    }
+                    else{
+                        board[i][j].className = "tile clicked";
+                    }
+                }
+            }
+            else{
+                console.log(0);
+            }
+        }
+    }
+}
