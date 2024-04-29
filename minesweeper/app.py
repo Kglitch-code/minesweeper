@@ -9,6 +9,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import json
 from flask_admin import Admin, expose, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
+from sqlalchemy.exc import IntegrityError
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///yourdatabase.db'  # Update as needed
@@ -90,20 +91,37 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+
+
 def insert_default_data():
     user1 = User(name='Jim Doe', username='jimdoe', email='jimdoe@abc.com')
     user1.set_password("password123")
     db.session.add(user1)
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()  # Roll back the session if there's an error
+        print("A user with this username already exists.")
+
 
     user2 = User(name='Jose Santos', username='josesantos', email='jsantos@uc.edu')
     user2.set_password("realpassword123")
     db.session.add(user2)
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()  # Roll back the session if there's an error
+        print("A user with this username already exists.")
 
     user3 = User(name='Nancy Little', username='nancylittle', email='test@123.com')
     user3.set_password("opassword123")
     db.session.add(user3)
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()  # Roll back the session if there's an error
+        print("A user with this username already exists.")
 
-    db.session.commit()
     print("Successfully added default data to db")
 
 
