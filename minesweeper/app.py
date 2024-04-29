@@ -43,6 +43,25 @@ class User(db.Model, UserMixin):
         return str(self.user_id)
 
 
+#store each game as an event
+class Game(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+#store the winner/loser of each game
+class GameResult(db.Model):
+    #store the ids of the current game, the winning user id and losing user id
+    game_id = db.Column(db.Integer, db.ForeignKey('games.id'), primary_key=True)
+    winner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    loser_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+    #store the game results, who won, who lost
+    game = db.relationship('Game', backref=db.backref('results', lazy=True))
+    winner = db.relationship('User', foreign_keys=[winner_id], backref=db.backref('wins', lazy='dynamic'))
+    loser = db.relationship('User', foreign_keys=[loser_id], backref=db.backref('losses', lazy='dynamic'))
+
+
+# model view for all the tables for admin
 class BaseModelView(ModelView):
     form_excluded_columns = []
 
