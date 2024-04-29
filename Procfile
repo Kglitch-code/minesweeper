@@ -1,1 +1,1 @@
-web: gunicorn minesweeper.app:app
+web: gunicorn app:app
