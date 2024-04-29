@@ -6,14 +6,14 @@
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$" />
-    <orderEntry type="jdk" jdkName="Python 3.9 (venv)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.9 (venv) (2)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Jinja2" />
     <option name="TEMPLATE_FOLDERS">
       <list>
-        <option value="$MODULE_DIR$/../minesweeper2\templates" />
+        <option value="$MODULE_DIR$/../minesweeper_main\templates" />
       </list>
     </option>
   </component>
