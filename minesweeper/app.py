@@ -25,6 +25,7 @@ admin = Admin(app, name='MyApp', template_mode='bootstrap3')
 # database models for the user,
 
 class User(db.Model, UserMixin):
+    __tablename__ = 'users'  # Explicit table name
     user_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
     username = db.Column(db.String(255), unique=True, nullable=False)
@@ -45,21 +46,20 @@ class User(db.Model, UserMixin):
 
 #store each game as an event
 class Game(db.Model):
+    __tablename__ = 'games'  # Explicit table name
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
 
 #store the winner/loser of each game
 class GameResult(db.Model):
     #store the ids of the current game, the winning user id and losing user id
+    __tablename__ = 'game_results'  # Explicit table name
     game_id = db.Column(db.Integer, db.ForeignKey('games.id'), primary_key=True)
-    winner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    loser_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-
-    #store the game results, who won, who lost
+    winner_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    loser_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     game = db.relationship('Game', backref=db.backref('results', lazy=True))
     winner = db.relationship('User', foreign_keys=[winner_id], backref=db.backref('wins', lazy='dynamic'))
     loser = db.relationship('User', foreign_keys=[loser_id], backref=db.backref('losses', lazy='dynamic'))
-
 
 # model view for all the tables for admin
 class BaseModelView(ModelView):
