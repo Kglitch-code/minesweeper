@@ -141,6 +141,7 @@ with app.app_context():
 @app.route('/')
 def home():
     return render_template('login-teacher.html')
+
 #requires user to be logged in before accessing dashboard
 @app.route('/dashboard')
 @login_required
@@ -150,7 +151,30 @@ def dashboard():
 @app.route('/profile')
 @login_required
 def profile():
-    return render_template('profile_page.html')
+
+    # user profile
+    user_profile = User.query.filter_by(user_id=current_user.user_id).first()
+    profile_list = [{
+        "Name": profile.user_id,
+        "Username": profile.username,
+        "Email": profile.email
+    }for profile in user_profile]
+
+    #to json string
+    profile_list = json.dumps(profile_list)
+
+    #find wins/losses
+    game_count = GameResult.query.filter(or_(GameResult.winner_id == current_user.user_id, GameResult.loser_id == current_user.user_id)).all()
+    game_list = [{
+        "Games won": game.winner.name if game.winner_id == current_user.user_id else 0,
+        "Games lost": game.loser.name if game.loser_id == current_user.user_id else 0
+    } for game in game_count]
+
+    #to json string
+    game_list = json.dumps(game_list)
+    # put correct html file name here but student.html is placeholder
+    return render_template('profile_page.html', display_name=current_user.name, profile_list= profile_list, game_list = game_list)
+
 
 
 # function for login
