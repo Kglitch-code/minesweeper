@@ -141,6 +141,16 @@ with app.app_context():
 @app.route('/')
 def home():
     return render_template('login-teacher.html')
+#requires user to be logged in before accessing dashboard
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template('dashboard.html')
+
+@app.route('/profile')
+@login_required
+def profile():
+    return render_template('profile_page.html')
 
 
 # function for login
@@ -156,6 +166,7 @@ def login():
         if user and user.check_password(password):
             login_user(user)
             # check roles and bring to correct page
+            return redirect(url_for('dashboard'))  # Redirect to dashboard
         else:
             # If authentication fails, reload the login page with an error
             print('Invalid username or password.', 'error')

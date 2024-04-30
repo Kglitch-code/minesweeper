@@ -1,0 +1,45 @@
+.h1{
+    text-align:center;
+    align-items:center;
+    justify-items:center;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: white;
+}
+
+.dashboard {
+    text-align: center;
+    background: white;
+    padding: 20px;
+}
+
+h1 {
+    color: #333;
+}
+
+button {
+    margin: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+#viewProfileBtn{
+    color:red;
+
+}

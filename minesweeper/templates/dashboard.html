@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minesweeper Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+</head>
+<body>
+    <div class="dashboard">
+        <h1 id="minesweeper-title">MineSweeper</h1>
+        <h2 id="welcomeMessage">Welcome, User!</h2>
+        <button onClick="window.location.href='/game'"id="game-option">1 Player</button>
+        
+        <button id="game-option"> 2 Players</button>
+        <button onClick="newGame()" id="newGameBtn">New Game</button>
+
+        <button id="continueGameBtn">Continue Game</button>
+        <button onClick="location.href='{{ url_for('profile') }}'" id="viewProfileBtn">View Profile</button>
+
+
+
+        
+    </div>
+    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+</body>
+</html>
