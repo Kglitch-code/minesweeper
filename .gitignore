@@ -1,0 +1,6 @@
+
+.idea/modules.xml
+.idea/vcs.xml
+.idea/misc.xml
+minesweeper/__pycache__/app.cpython-39.pyc
+minesweeper/instance/yourdatabase.db
