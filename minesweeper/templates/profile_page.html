@@ -10,7 +10,7 @@
     <div class="profile-container">
         <div class="profile-header">
             <img src="{{ url_for('static', filename='images/default_pic.png') }}" alt="Profile Picture" class="profile-pic">
-            <h1 id="username">Username</h1>
+            <h1 id="username">{{current_user.name}}</h1>
             <button onClick="togglePicSelector()" id="editPic">Change Image</button>
         </div>
         <div id="picSelector" style="display:none;">
@@ -23,6 +23,8 @@
             <p>Games Played: <span id="games-played">0</span></p>
             <p>Win Rate: <span id="win-rate">0%</span></p>
         </div>
+        <button onClick="window.location.href='/logout'"id="logoutBtn">Logout</button>
+
     </div>
     <script src="{{ url_for('static', filename='profile_page.js') }}"></script>
 </body>

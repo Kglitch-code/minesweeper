@@ -9,7 +9,8 @@
 <body>
     <div class="dashboard">
         <h1 id="minesweeper-title">MineSweeper</h1>
-        <h2 id="welcomeMessage">Welcome, User!</h2>
+        <h2 id="welcomeMessage">Welcome, {{current_user.name}}!</h2> 
+
         <button onClick="window.location.href='/game'"id="game-option">1 Player</button>
         
         <button id="game-option"> 2 Players</button>
@@ -17,6 +18,9 @@
 
         <button id="continueGameBtn">Continue Game</button>
         <button onClick="location.href='{{ url_for('profile') }}'" id="viewProfileBtn">View Profile</button>
+
+        <button onClick="window.location.href='/logout'"id="logoutBtn">Logout</button>
+
 
 
 
