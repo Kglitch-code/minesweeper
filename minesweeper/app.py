@@ -10,6 +10,8 @@ import json
 from flask_admin import Admin, expose, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import or_
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///yourdatabase.db'  # Update as needed
@@ -61,6 +63,9 @@ class GameResult(db.Model):
     winner = db.relationship('User', foreign_keys=[winner_id], backref=db.backref('wins', lazy='dynamic'))
     loser = db.relationship('User', foreign_keys=[loser_id], backref=db.backref('losses', lazy='dynamic'))
 
+    def get_id(self):
+        return str(self.game_id)
+
 # model view for all the tables for admin
 class BaseModelView(ModelView):
     form_excluded_columns = []
@@ -100,7 +105,62 @@ class UserModelView(BaseModelView):
         super(UserModelView, self).on_model_change(form, model, is_created)
 
 
+class GameResultModelView(BaseModelView):
+    can_create = True
+    can_edit = True
+    can_delete = True
+    can_export = True
+    ## game_id = db.Column(db.Integer, db.ForeignKey('games.id'), primary_key=True)
+    #winner_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    #loser_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    #game = db.relationship('Game', backref=db.backref('results', lazy=True))
+    #winner = db.relationship('User', foreign_keys=[winner_id], backref=db.backref('wins', lazy='dynamic'))
+    #loser =
+    # Fields to display in the form
+
+    form_columns = ['game_id', 'winner_id', 'loser_id', 'game', 'winner', 'loser']
+    # Labels for the columns
+    column_labels = {
+        'game_id': 'Game Id',
+        'winner_id': 'Winner id',
+        'loser_id': 'Loser id',
+        'game': 'Game',
+        'winner': 'Winner',
+        'loser': 'Loser'
+    }
+
+    # Fields to display in the list view
+    column_list = ['game_id', 'winner_id', 'loser_id', 'game', 'winner', 'loser']
+
+    def __init__(self, model, session, **kwargs):
+        super(GameResultModelView, self).__init__(model, session, **kwargs)
+        self.static_folder = 'static'
+        self.name = 'Classes'
+
+    def after_model_change(self, form, model, is_created):
+        super(GameResultModelView, self).after_model_change(form, model, is_created)
+
+
+
+class GameModelView(BaseModelView):
+    column_list = ('id', 'timestamp')
+    column_labels = {
+        'id': 'Game Id',
+        'timestamp': 'Timestamp',
+    }
+
+    def __init__(self, model, session, **kwargs):
+        super(GameModelView, self).__init__(model, session, **kwargs)
+        self.static_folder = 'static'
+        # self.endpoint = 'admin.index'
+        self.name = 'Game'
+
+
+# flask views
 admin.add_view(UserModelView(User, db.session))
+admin.add_view(GameModelView(Game, db.session))
+admin.add_view(GameResultModelView(GameResult, db.session))
+
 
 
 # flask-login
@@ -126,6 +186,9 @@ def insert_default_data():
     user3.set_password("opassword123")
     db.session.add(user3)
 
+    admin_user = User(name = 'admin', username = 'admin', email = 'admin@admin.com')
+    admin_user.set_password("AdminPassword123")
+    db.session.add(admin_user)
     db.session.commit()
 
 
@@ -155,22 +218,25 @@ def profile():
     # user profile
     user_profile = User.query.filter_by(user_id=current_user.user_id).first()
     profile_list = [{
-        "Name": profile.user_id,
-        "Username": profile.username,
-        "Email": profile.email
-    }for profile in user_profile]
+        "Name": user_profile.name,
+        "Username": user_profile.username,
+        "Email": user_profile.email
+    }]
 
-    #to json string
+    # Convert to json string
     profile_list = json.dumps(profile_list)
 
-    #find wins/losses
-    game_count = GameResult.query.filter(or_(GameResult.winner_id == current_user.user_id, GameResult.loser_id == current_user.user_id)).all()
-    game_list = [{
-        "Games won": game.winner.name if game.winner_id == current_user.user_id else 0,
-        "Games lost": game.loser.name if game.loser_id == current_user.user_id else 0
-    } for game in game_count]
+    # Find wins/losses
+    game_results = GameResult.query.filter(
+        or_(GameResult.winner_id == current_user.user_id, GameResult.loser_id == current_user.user_id)
+    ).all()
 
-    #to json string
+    game_list = [{
+        "Games won": 1 if game.winner_id == current_user.user_id else 0,
+        "Games lost": 1 if game.loser_id == current_user.user_id else 0
+    } for game in game_results]
+
+    # Convert to json string
     game_list = json.dumps(game_list)
     # put correct html file name here but student.html is placeholder
     return render_template('profile_page.html', display_name=current_user.name, profile_list= profile_list, game_list = game_list)
@@ -190,7 +256,11 @@ def login():
         if user and user.check_password(password):
             login_user(user)
             # check roles and bring to correct page
-            return redirect(url_for('dashboard'))  # Redirect to dashboard
+            #added admin route
+            if user.username == 'admin':
+                return redirect(url_for('admin.index'))
+            else:
+                return redirect(url_for('dashboard'))  # Redirect to dashboard
         else:
             # If authentication fails, reload the login page with an error
             print('Invalid username or password.', 'error')
