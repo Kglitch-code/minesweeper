@@ -13,8 +13,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy import or_
 from flask_login import LoginManager
 from flask_admin import Admin
-from flask_socketio import SocketIO, emit, send
-from flask_socketio import join_room, leave_room
+from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///yourdatabase.db'
@@ -298,20 +297,6 @@ def game():
 @app.route('/game2p', methods=['GET', 'POST'])
 def game_2player():
     return render_template('index2p.html')
-
-@socketio.on('join')
-def on_join(data):
-    username = data['username']
-    room = data['room']
-    join_room(room)
-    send(username + ' has entered the room.', to=room)
-
-@socketio.on('leave')
-def on_leave(data):
-    username = data['username']
-    room = data['room']
-    leave_room(room)
-    send(username + ' has left the room.', to=room)
 
 
 # sign out button
