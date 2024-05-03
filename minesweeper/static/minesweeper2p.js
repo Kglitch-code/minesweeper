@@ -12,10 +12,15 @@ let gameOver = false;
 
 var socket = io.connect('/');
 // var socket = io();
-    socket.on('connect', function() {
-        console.log("Connected")
-        socket.emit('message', "Hello there, Testing");
-    });
+socket.on('connect', function() {
+    console.log("Connected")
+    socket.emit('message', "Hello there, Testing");
+});
+
+socket.on("response", function(msg){
+    console.log("response:")
+    console.log(msg)
+})
 
 window.onload = function(){
     startGame();
