@@ -284,10 +284,16 @@ def login():
     # For GET requests or failed login attempts
     return render_template('login-teacher.html')
 
-@app.route('/game')
+
 @app.route('/game', methods=['GET', 'POST'])
 def game():
     return render_template('index.html')
+
+#2 player game load and logic
+
+@app.route('/game2p', methods=['GET', 'POST'])
+def game_2player():
+    return render_template('index2p.html')
 
 # sign out button
 @app.route('/logout')

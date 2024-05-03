@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Minesweeper</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="{{url_for('static', filename = 'minesweeper.css')}}">
+        <script src="{{ url_for('static', filename='minesweeper2p.js') }}"></script>
+    </head>
+    
+    <body>
+
+        <h1>Minesweeper</h1>
+
+        <!-- <h2>Leaderboard</h2>
+        <h2>My Account</h2>
+        <h2>Sign Out</h2> -->
+
+        <h2>Mines: <span id="minesCount">0</span></h2>
+
+        <div id="board">
+        </div>
+        <br>
+        <button id="flag">🚩</button>
+
+
+
+
+
+    </body>
+</html>
