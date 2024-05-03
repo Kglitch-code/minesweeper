@@ -11,17 +11,21 @@ from flask_admin import Admin, expose, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import or_
-
+from flask_login import LoginManager
+from flask_admin import Admin
+from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///yourdatabase.db'  # Update as needed
-app.config['SECRET_KEY'] = 'hxjowf'  # random characters
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///yourdatabase.db'
+app.config['SECRET_KEY'] = 'hxjowf'
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
-
 admin = Admin(app, name='MyApp', template_mode='bootstrap3')
+
+# Initialize SocketIO
+socketio = SocketIO(app)
 
 
 # database models for the user,
@@ -52,6 +56,7 @@ class Game(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
 
+
 #store the winner/loser of each game
 class GameResult(db.Model):
     #store the ids of the current game, the winning user id and losing user id
@@ -65,6 +70,7 @@ class GameResult(db.Model):
 
     def get_id(self):
         return str(self.game_id)
+
 
 # model view for all the tables for admin
 class BaseModelView(ModelView):
@@ -141,7 +147,6 @@ class GameResultModelView(BaseModelView):
         super(GameResultModelView, self).after_model_change(form, model, is_created)
 
 
-
 class GameModelView(BaseModelView):
     column_list = ('id', 'timestamp')
     column_labels = {
@@ -162,7 +167,6 @@ admin.add_view(GameModelView(Game, db.session))
 admin.add_view(GameResultModelView(GameResult, db.session))
 
 
-
 # flask-login
 # reloads the user object from the user ID stored in the session
 @login_manager.user_loader
@@ -170,13 +174,10 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-
-
 def insert_default_data():
     user1 = User(name='Jim Doe', username='jimdoe', email='jimdoe@abc.com')
     user1.set_password("password123")
     db.session.add(user1)
-
 
     user2 = User(name='Jose Santos', username='josesantos', email='jsantos@uc.edu')
     user2.set_password("realpassword123")
@@ -186,11 +187,10 @@ def insert_default_data():
     user3.set_password("opassword123")
     db.session.add(user3)
 
-    admin_user = User(name = 'admin', username = 'admin', email = 'admin@admin.com')
+    admin_user = User(name='admin', username='admin', email='admin@admin.com')
     admin_user.set_password("AdminPassword123")
     db.session.add(admin_user)
     db.session.commit()
-
 
     ## add default game data
     game1 = Game()
@@ -209,6 +209,7 @@ def insert_default_data():
 
     db.session.commit()
 
+
 # create database
 with app.app_context():
     db.drop_all()  # Delete the previous cache database
@@ -222,16 +223,17 @@ with app.app_context():
 def home():
     return render_template('login-teacher.html')
 
+
 #requires user to be logged in before accessing dashboard
 @app.route('/dashboard')
 @login_required
 def dashboard():
     return render_template('dashboard.html')
 
+
 @app.route('/profile')
 @login_required
 def profile():
-
     # user profile
     user_profile = User.query.filter_by(user_id=current_user.user_id).first()
     profile_list = [{
@@ -256,8 +258,8 @@ def profile():
     # Convert to json string
     game_list = json.dumps(game_list)
     # put correct html file name here but student.html is placeholder
-    return render_template('profile_page.html', display_name=current_user.name, profile_list= profile_list, game_list = game_list)
-
+    return render_template('profile_page.html', display_name=current_user.name, profile_list=profile_list,
+                           game_list=game_list)
 
 
 # function for login
@@ -289,11 +291,13 @@ def login():
 def game():
     return render_template('index.html')
 
+
 #2 player game load and logic
 
 @app.route('/game2p', methods=['GET', 'POST'])
 def game_2player():
     return render_template('index2p.html')
+
 
 # sign out button
 @app.route('/logout')
@@ -321,5 +325,12 @@ def add_cache_control_headers(response):
     return response
 
 
+@socketio.on('message')
+def handle_message(data):
+    print('received message: ' + data)
+    emit('response', {'data': 'Server received: ' + data})
+
+
 if __name__ == '__main__':
     app.run(debug=True)
+    socketio.run(app, debug=True)
