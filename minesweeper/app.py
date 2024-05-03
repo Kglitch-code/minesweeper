@@ -192,6 +192,23 @@ def insert_default_data():
     db.session.commit()
 
 
+    ## add default game data
+    game1 = Game()
+    db.session.add(game1)
+    game2 = Game()
+    db.session.add(game2)
+    db.session.commit()
+
+    #set result as jimdoe win, jose lost
+    result1 = GameResult(game_id=game1.id, winner_id=user1.user_id, loser_id=user2.user_id)
+    db.session.add(result1)
+
+    #set result as jimdoe lost, jose win
+    result2 = GameResult(game_id=game2.id, winner_id=user2.user_id, loser_id=user3.user_id)
+    db.session.add(result2)
+
+    db.session.commit()
+
 # create database
 with app.app_context():
     db.drop_all()  # Delete the previous cache database
