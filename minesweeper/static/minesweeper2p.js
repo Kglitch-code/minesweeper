@@ -10,6 +10,13 @@ let flag = false;
 
 let gameOver = false;
 
+var socket = io.connect('/');
+// var socket = io();
+    socket.on('connect', function() {
+        console.log("Connected")
+        socket.emit('message', "Hello there, Testing");
+    });
+
 window.onload = function(){
     startGame();
 }
