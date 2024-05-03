@@ -68,12 +68,14 @@ function startGame(){
 function winGame(){
     revealAll(true);
     alert("You Won")
+    socket.emit('message', "Game Won");
     return;
 }
 
 function LoseGame(){
     revealAll(false);
     alert("You Lost")
+    socket.emit('message', "Game Lost");
     return;
 }
 
@@ -230,6 +232,7 @@ function tileClear(i, j){
         }
         else{
             let num = getNearbyTilesNum(i, j);
+            socket.emit('message', "Clear: " +i+", "+j);
             if(num != 0){
                 board[i][j].className = "tile clicked bomb-" + num;
                 board[i][j].innerHTML = num;
@@ -253,12 +256,14 @@ function tileFlag(i, j){
         board[i][j].innerHTML = "🚩";
         minesRemaining-=1;
         setMinesCount();
+        socket.emit('message', "Flag: " +i+", "+j);
     }
     else if(board[i][j].className == "tile flag"){
         board[i][j].className = "tile blank";
         board[i][j].innerHTML = "";
         minesRemaining+=1;
         setMinesCount();
+        socket.emit('message', "unFlag: " +i+", "+j);
     }
     return;
 }
