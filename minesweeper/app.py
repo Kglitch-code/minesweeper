@@ -297,9 +297,8 @@ def add_cache_control_headers(response):
     response.headers['Expires'] = '0'
     return response
 
-def test(){
+def test():
     print("test123")
-}
 
 if __name__ == '__main__':
     app.run(debug=True)
