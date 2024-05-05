@@ -3,12 +3,17 @@
     text-align: center;
 }
 
+.header{
+    display: flex;
+    justify-content: space-between;
+}
+
 #returnBtn{
     font-size: 18px;
     padding: 12px 24px;
     margin: 10px;
-    background-color:bisque;
-    color: black;
+    background-color:#AA7DCE;
+    color: white;
     border: none;
     border-radius: 8px;
     cursor: pointer;
