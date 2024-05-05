@@ -13,12 +13,16 @@
     padding: 12px 24px;
     margin: 10px;
     background-color:#AA7DCE;
-    color: white;
+    color: black;
     border: none;
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.3s, transform 0.2s;
 
+}
+#returnBtn:hover {
+    background-color: #8b66aa;
+    transform: scale(1.05);
 }
 
 #board{
