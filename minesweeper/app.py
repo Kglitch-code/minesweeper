@@ -334,7 +334,7 @@ def new_game_or_join():
             socketio.emit('game_ready', {'message': 'All players connected. Game starting...'}, room=available_room.room_code)
         return redirect(url_for('game2p', room_code=available_room.room_code))
     else:
-        #create new game for 1 player 
+        #create new game for 1 player
         new_game = Game()
         db.session.add(new_game)
         db.session.flush()
