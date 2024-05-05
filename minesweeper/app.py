@@ -1,5 +1,7 @@
+from random import randint
+from flask import session
 from flask import Flask, render_template, redirect, url_for, request
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy, session
 import os, time
 from sqlalchemy import text, true, ForeignKey, false
 from flask_login import UserMixin, LoginManager, login_required, current_user, logout_user, login_user
@@ -74,6 +76,22 @@ class GameResult(db.Model):
     def get_id(self):
         return str(self.game_id)
 
+class GameRoom(db.Model):
+    __tablename__ = 'game_rooms'
+    id = db.Column(db.Integer, primary_key=True)
+    game_id = db.Column(db.Integer, db.ForeignKey('games.id'), nullable=False)  # ForeignKey must reference 'games.id'
+    room_code = db.Column(db.String(10), unique=True)
+    player_count = db.Column(db.Integer, default=1)  # Count of current players in the room
+
+game = db.relationship('Game', backref=db.backref('room', uselist=False, cascade="all, delete"))
+
+# class GameRoom(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=False)
+#     room_code = db.Column(db.String(10), unique=True)
+#     player_count = db.Column(db.Integer, default=1)  # Count of current players in the room
+#
+#     game = db.relationship('Game', backref=db.backref('room', uselist=False, cascade="all, delete"))
 
 # model view for all the tables for admin
 class BaseModelView(ModelView):
@@ -295,11 +313,81 @@ def game():
     return render_template('index.html')
 
 
+#####################################
+######### 2 player stuff ################
+###################################
+@app.route('/game2p')
+def game2p():
+    return render_template('index2p.html')
+
+
+#join the new room
+@app.route('/new_game_or_join')
+def new_game_or_join():
+    #room capacity is 2
+    available_room = GameRoom.query.filter(GameRoom.player_count < 2).first()
+    if available_room:
+        available_room.player_count += 1 #commit join to room
+        db.session.commit()
+        if available_room.player_count == 2: #start game/room full
+            # Emit event to all clients in this room that the game is ready
+            socketio.emit('game_ready', {'message': 'All players connected. Game starting...'}, room=available_room.room_code)
+        return redirect(url_for('game2p', room_code=available_room.room_code))
+    else:
+        #create new game for 1 player 
+        new_game = Game()
+        db.session.add(new_game)
+        db.session.flush()
+        new_room_code = str(randint(1000, 9999))
+        new_game_room = GameRoom(game_id=new_game.id, room_code=new_room_code, player_count=1)
+        db.session.add(new_game_room)
+        db.session.commit()
+        return redirect(url_for('game2p', room_code=new_room_code))
+
+
+#handling the 2 player joining
+# @app.route('/new_game_or_join')
+# def new_game_or_join():
+#     # Find an available room or create a new one
+#     available_room = GameRoom.query.filter(GameRoom.player_count < 2).first()
+#
+#     if available_room:
+#         # Join the existing room if it's not full
+#         available_room.player_count += 1
+#         db.session.commit()
+#         session['room_code'] = available_room.room_code
+#         return redirect(url_for('game2p', room_code=available_room.room_code))
+#     else:
+#         # Create a new room if no suitable room is available
+#         new_game = Game()
+#         db.session.add(new_game)
+#         db.session.flush()  # Flush to assign an ID
+#
+#         new_room_code = str(randint(1000, 9999))  # Generate a unique room code
+#         new_game_room = GameRoom(game_id=new_game.id, room_code=new_room_code, player_count=1)
+#         db.session.add(new_game_room)
+#         db.session.commit()
+#         new_room_code = str(randint(1000, 9999))
+#         session['room_code'] = new_room_code  # This should work if `session` is imported correctly
+#         #return jsonify({'room_code': new_room_code})
+#         return redirect(url_for('game2p', room_code=new_room_code))
+
+#join the room
+# @app.route('/game2p')
+# def game2p():
+#     room_code = request.args.get('room_code')
+#     if not room_code:
+#         return redirect(url_for('new_game_or_join'))
+#     return render_template('game2p.html', room_code=room_code)
+
+#############################################
+
+
 #2 player game load and logic
 
-@app.route('/game2p', methods=['GET', 'POST'])
-def game_2player():
-    return render_template('index2p.html')
+# @app.route('/game2p', methods=['GET', 'POST'])
+# def game_2player():
+#     return render_template('index2p.html')
 
 
 # sign out button
@@ -340,7 +428,17 @@ def handle_message(data):
     print('received message: ' + data)
     emit('response', {'data': 'Server received: ' + data})
 
+# socketio.on('join_game')
+# def handle_join_game(data):
+#     join_room(data['game_id'])
+#     emit('join_confirmation', {'message': 'Joined game: ' + data['game_id']}, room=data['game_id'])
 
+@socketio.on('end_game')
+def handle_end_game(data):
+    game = Game(result=data['result'], end_time=datetime.utcnow())
+    db.session.add(game)
+    db.session.commit()
+    emit('game_over', {'result': data['result']}, room=data['game_id'])
 #user joins a new room
 @socketio.on('join')
 def on_join(data):

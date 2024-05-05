@@ -6,12 +6,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="{{url_for('static', filename = 'minesweeper.css')}}">
         <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script src="{{ url_for('static', filename='minesweeper2p.js') }}"></script>
     </head>
     
     <body>
 
         <h1>Minesweeper</h1>
+        <h1>Welcome to the Two Player Game!</h1>
+        <div id="gameStatus"></div>
 
         <!-- <h2>Leaderboard</h2>
         <h2>My Account</h2>

@@ -11,11 +11,12 @@ let flag = false;
 let gameOver = false;
 
 var socket = io.connect('/');
+
 // var socket = io();
-socket.on('connect', function() {
-    console.log("Connected")
-    socket.emit('message', "Hello there, Testing");
-});
+//socket.on('connect', function() {
+   // console.log("Connected")
+   // socket.emit('message', "Hello there, Testing");
+//});
 
 socket.on("response", function(msg){
     console.log("response:")
@@ -25,6 +26,46 @@ socket.on("response", function(msg){
 window.onload = function(){
     startGame();
 }
+
+var roomCode = "{{ room_code }}";
+
+
+socket.on('connect', function() {
+    // Join the game room using the room code from the Flask template
+    socket.emit('join_game', { room_code: roomCode });
+});
+
+socket.on('join_confirmation', function(data) {
+    console.log(data.message);
+    document.getElementById('gameStatus').textContent = 'Game ready! Waiting for other player...';
+});
+
+
+
+// Handle custom server responses
+socket.on("response", function(msg) {
+    console.log("Server response:", msg);
+});
+
+
+socket.on('waiting_for_player', function(data) {
+    console.log(data.message);
+    document.getElementById('gameStatus').textContent = data.message;
+});
+
+socket.on('game_ready', function(data) {
+    console.log(data.message);
+    document.getElementById('gameStatus').textContent = data.message;
+});
+
+// Additional handling for game_over event if applicable
+socket.on('game_over', function(msg) {
+    console.log(msg.message);
+    document.getElementById('gameStatus').textContent = 'Game Over: ' + msg.result;
+});
+
+
+
 
 function addMines(){
     let minesRemain = mines;
@@ -285,3 +326,4 @@ function spacePressed(i, j){
     }
     return;
 }
+
