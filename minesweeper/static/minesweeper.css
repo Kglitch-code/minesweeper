@@ -3,6 +3,19 @@
     text-align: center;
 }
 
+#returnBtn{
+    font-size: 18px;
+    padding: 12px 24px;
+    margin: 10px;
+    background-color:bisque;
+    color: black;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+
+}
+
 #board{
     width: 450px;
     height: 450px;
@@ -31,35 +44,35 @@
 }
 
 .bomb-1{
-    color: #FF0807;
+    color: #0000FF;
 }
 
 .bomb-2{
-    color: #1F0021;
+    color: #008000 ;
 }
 
 .bomb-3{
-    color: #FFF93B;
+    color:  #FF0000;
 }
 
 .bomb-4{
-    color: #F0F7F5;
+    color: #800080;
 }
 
 .bomb-5{
-    color: #2228FF;
+    color: #FFA500;
 }
 
 .bomb-6{
-    color: teal;
+    color: #008080;
 }
 
 .bomb-7{
-    color: black;
+    color: #8B4513;
 }
 
 .bomb-8{
-    color: gray;
+    color:#000000;
 }
 
 
