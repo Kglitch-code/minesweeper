@@ -7,6 +7,7 @@ from sqlalchemy.dialects.sqlite import json
 from sqlalchemy.orm import validates
 from werkzeug.security import generate_password_hash, check_password_hash
 import json
+from flask import jsonify
 from flask_admin import Admin, expose, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from sqlalchemy.exc import IntegrityError
@@ -37,6 +38,8 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(db.Text, nullable=False)
     email = db.Column(db.Text, nullable=False)
+    profile_image = db.Column(db.String(255), nullable=False, default='default_pic.png')
+
 
     # password hashing
     def set_password(self, password):

@@ -1,8 +1,9 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: beige;
+    font-family: 'Arial', sans-serif;
+    background-color: #503047; 
+    color: #333; 
     margin: 0;
-    padding: 20px;
+    padding: 0;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -10,12 +11,16 @@ body {
 }
 
 .profile-container {
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    width: 300px;
-    padding: 20px;
+    background: #e0e6ed;
+    border-radius: 20px;
+    width: 350px;
+    padding: 40px;
     text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.profile-container:hover {
+    transform: scale(1.03); 
 }
 
 .profile-header {
@@ -23,30 +28,68 @@ body {
 }
 
 .profile-pic {
-    width: 100px;
-    height: 100px;
+    width: 140px;
+    height: 140px;
     border-radius: 50%;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+    border: 5px solid #a4b9cf; 
 }
 
 .profile-stats p {
-    margin: 10px 0;
-    color: #333;
+    font-size: 18px;
+    margin: 12px 0;
 }
 
-p{
-    font-size: 16px;
+#picSelector {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
 }
 
 #picSelector img {
     cursor: pointer;
-    margin: 5px;
-    width: 100px; 
-    height: auto;
-    border: 2px solid #ccc;
-    border-radius: 5px;
+    margin: 8px;
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+    transition: transform 0.3s, box-shadow 0.3s;
 }
 
 #picSelector img:hover {
-    border-color: blue;
+    transform: scale(1.15);
+}
+
+button {
+    background-color: #6bb9f0; 
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+    margin-top: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+}
+
+button:hover {
+    background-color: #59a6db; 
+    transform: translateY(-3px);
+}
+
+#logoutBtn {
+    background-color: #ef8275; 
+}
+
+#logoutBtn:hover {
+    background-color: #e76a58; 
+}
+
+#editPic {
+    background-color: #ffd564; 
+}
+
+#editPic:hover {
+    background-color: #ffca4b; 
 }
