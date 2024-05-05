@@ -14,7 +14,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy import or_
 from flask_login import LoginManager
 from flask_admin import Admin
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room, leave_room, send
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///yourdatabase.db'
@@ -309,6 +309,9 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
+################################
+#cache busting
+###################
 
 #cache buster
 @app.context_processor
@@ -327,12 +330,35 @@ def add_cache_control_headers(response):
     response.headers['Expires'] = '0'
     return response
 
+############################
 
+###########################
+#socketio stuff
+########################
 @socketio.on('message')
 def handle_message(data):
     print('received message: ' + data)
     emit('response', {'data': 'Server received: ' + data})
 
+
+#user joins a new room
+@socketio.on('join')
+def on_join(data):
+    username = data['username']
+    room = data['game_id']
+    join_room(room)
+    send(username + ' has entered the room.room}', room=room)
+
+#user leaves the room
+@socketio.on('leave')
+def on_leave(data):
+    username = data['username']
+    room = data['game_id']
+    leave_room(room)
+    send(username + ' has left the room.', room=room)
+
+
+########game run###############
 
 if __name__ == '__main__':
     app.run(debug=True)
