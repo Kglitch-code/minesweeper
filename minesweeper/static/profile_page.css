@@ -1,13 +1,20 @@
 body {
     font-family: 'Arial', sans-serif;
-    background-color: #503047; 
-    color: #333; 
+    background-color: lightgray;
+    color: #333;
     margin: 0;
     padding: 0;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
     height: 100vh;
+}
+
+.top-bar {
+    width: 100%;
+    text-align: right;
+    padding: 10px 20px; /* Adjust padding for spacing */
 }
 
 .profile-container {
@@ -20,7 +27,7 @@ body {
 }
 
 .profile-container:hover {
-    transform: scale(1.03); 
+    transform: scale(1.03);
 }
 
 .profile-header {
@@ -32,7 +39,7 @@ body {
     height: 140px;
     border-radius: 50%;
     margin-bottom: 15px;
-    border: 5px solid #a4b9cf; 
+    border: 5px solid #a4b9cf;
 }
 
 .profile-stats p {
@@ -61,8 +68,8 @@ body {
 }
 
 button {
-    background-color: #6bb9f0; 
-    color: white;
+    background-color: #6bb9f0;
+    color: black;
     border: none;
     border-radius: 10px;
     padding: 12px 24px;
@@ -70,26 +77,42 @@ button {
     cursor: pointer;
     transition: background-color 0.3s, transform 0.3s;
     margin-top: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 button:hover {
-    background-color: #59a6db; 
+    background-color: #59a6db;
     transform: translateY(-3px);
 }
 
+#returnBtn {
+    background-color: #AA7DCE; /* Specific styling for the Return button */
+    color: black;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    margin-right:50px;
+    margin-bottom:70px;
+
+
+}
+
+#returnBtn:hover {
+    background-color: #8b66aa;
+    transform: translateY(-2px);
+}
+
 #logoutBtn {
-    background-color: #ef8275; 
+    background-color: #ef8275;
 }
 
 #logoutBtn:hover {
-    background-color: #e76a58; 
+    background-color: #e76a58;
 }
 
 #editPic {
-    background-color: #ffd564; 
+    background-color: #ffd564;
 }
 
 #editPic:hover {
-    background-color: #ffca4b; 
+    background-color: #ffca4b;
 }

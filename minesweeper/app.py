@@ -218,7 +218,7 @@ def insert_default_data():
     db.session.add(result1)
 
     #set result as jimdoe lost, jose win
-    result2 = GameResult(game_id=game2.id, winner_id=user2.user_id, loser_id=user3.user_id)
+    result2 = GameResult(game_id=game2.id, winner_id=user2.user_id, loser_id=user1.user_id)
     db.session.add(result2)
 
     db.session.commit()
@@ -248,32 +248,34 @@ def dashboard():
 @app.route('/profile')
 @login_required
 def profile():
-    # user profile
+    # Fetch user profile data
     user_profile = User.query.filter_by(user_id=current_user.user_id).first()
-    profile_list = [{
-        "Name": user_profile.name,
-        "Username": user_profile.username,
-        "Email": user_profile.email
-    }]
 
-    # Convert to json string
-    profile_list = json.dumps(profile_list)
+    # Calculate wins and losses
+    wins = GameResult.query.filter_by(winner_id=current_user.user_id).count()
+    losses = GameResult.query.filter_by(loser_id=current_user.user_id).count()
 
-    # Find wins/losses
-    game_results = GameResult.query.filter(
-        or_(GameResult.winner_id == current_user.user_id, GameResult.loser_id == current_user.user_id)
-    ).all()
+    # Calculate win rate
+    total_games = wins + losses
+    if total_games > 0:
+        win_rate = (wins / total_games) * 100
+    else:
+        win_rate = 0  # Avoid division by zero if no games played
 
-    game_list = [{
-        "Games won": 1 if game.winner_id == current_user.user_id else 0,
-        "Games lost": 1 if game.loser_id == current_user.user_id else 0
-    } for game in game_results]
-
-    # Convert to json string
-    game_list = json.dumps(game_list)
-    # put correct html file name here but student.html is placeholder
-    return render_template('profile_page.html', display_name=current_user.name, profile_list=profile_list,
-                           game_list=game_list)
+    # Render the profile page with the data
+    return render_template('profile_page.html', display_name=current_user.name, profile_data=user_profile,
+                           wins=wins, losses=losses, win_rate=win_rate)
+    
+@app.route('/update_profile_pic', methods=['POST'])
+@login_required
+def update_profile_pic():
+    data = request.get_json()
+    user = User.query.get(current_user.user_id)
+    if data and 'profile_image' in data:
+        user.profile_image = data['profile_image']
+        db.session.commit()
+        return jsonify({'message': 'Profile image updated successfully!'}), 200
+    return jsonify({'message': 'Invalid request'}), 400
 
 
 # function for login
