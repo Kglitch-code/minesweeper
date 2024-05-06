@@ -5,26 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minesweeper Profile</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='profile_page.css') }}">
+
 </head>
 <body>
+    <div class="top-bar">
+        <button onclick="window.location.href='/dashboard'" id="returnBtn">← Return to Dashboard</button>
+    </div>
     <div class="profile-container">
         <div class="profile-header">
-            <img src="{{ url_for('static', filename='images/default_pic.png') }}" alt="Profile Picture" class="profile-pic">
-            <h1 id="username">{{current_user.name}}</h1>
+            <img id="profilePic" src="{{ url_for('static', filename='images/' + current_user.profile_image) }}" alt="Profile Picture" class="profile-pic">
+            <h1 id="username">{{ current_user.name }}</h1>
             <button onClick="togglePicSelector()" id="editPic">Change Image</button>
         </div>
         <div id="picSelector" style="display:none;">
             <img src="{{ url_for('static', filename='images/profile_pic1.png') }}" alt="Profile Pic 1" onclick="changeProfilePic('profile_pic1.png')">
-            <img src="{{ url_for('static', filename='images/profile_pic2.jpeg') }}" alt="Profile Pic 2" onclick="changeProfilePic('profile_pic2.png')">
-            <img src="{{ url_for('static', filename='images/profile_pic3.jpeg') }}" alt="Profile Pic 3" onclick="changeProfilePic('profile_pic3.png')">
+            <img src="{{ url_for('static', filename='images/profile_pic2.png') }}" alt="Profile Pic 2" onclick="changeProfilePic('profile_pic2.png')">
+            <img src="{{ url_for('static', filename='images/profile_pic3.png') }}" alt="Profile Pic 3" onclick="changeProfilePic('profile_pic3.png')">
         </div>
         <div class="profile-stats">
-            <p>Highest Score: <span id="highest-score">0</span></p>
-            <p>Games Played: <span id="games-played">0</span></p>
-            <p>Win Rate: <span id="win-rate">0%</span></p>
+            <p>Games Played: <span id="games-played">{{ wins + losses }}</span></p>
+            <p>Total Wins: <span id="total-wins">{{ wins }}</span></p>
+            <p>Total Losses: <span id="total-losses">{{ losses }}</span></p>
+            <p>Win Rate: <span id="win-rate">{{ win_rate|round(2) }}%</span></p>
         </div>
-        <button onClick="window.location.href='/logout'"id="logoutBtn">Logout</button>
-
+        <button onClick="window.location.href='/logout'" id="logoutBtn">Logout</button>
     </div>
     <script src="{{ url_for('static', filename='profile_page.js') }}"></script>
 </body>

@@ -1,45 +1,80 @@
-.h1{
-    text-align:center;
-    align-items:center;
-    justify-items:center;
-}
-
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #3B5249;
+    color: #fff;
+    height: 100vh;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    margin: 0;
-    background-color: white;
+    position: relative;
 }
 
-.dashboard {
+header {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    text-align: right;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+}
+
+.profile-pic {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 5px;
+    border: 2px solid #fff;
+}
+
+main {
     text-align: center;
-    background: white;
-    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-h1 {
-    color: #333;
+.game-options {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.row {
+    display: flex;
+    justify-content: center;
 }
 
 button {
+    font-size: 18px;
+    padding: 12px 24px;
     margin: 10px;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    background-color: #4CAF50;
+    background-color:#AA7DCE;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
 }
+
 
 button:hover {
-    background-color: #45a049;
+    background-color: #8b66aa;
+    transform: scale(1.05);
 }
 
-#viewProfileBtn{
-    color:white;
+#logoutBtn {
+    background-color: #d9534f; 
 
+}
+
+#logoutBtn:hover {
+    background-color: #c9302c;
 }

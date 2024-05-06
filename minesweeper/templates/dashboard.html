@@ -7,25 +7,25 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
 </head>
 <body>
-    <div class="dashboard">
-        <h1 id="minesweeper-title">MineSweeper</h1>
-        <h2 id="welcomeMessage">Welcome, {{current_user.name}}!</h2> 
+    <header>
+        <div class="user-info" onclick="location.href='{{ url_for('profile') }}'">
+            <img src="{{ url_for('static', filename='images/' + current_user.profile_image) }}" alt="Profile Picture" class="profile-pic">
+            <span>{{current_user.name}}</span>
+        </div>
+        <button onClick="window.location.href='/logout'" id="logoutBtn">Logout</button>
 
-        <button onClick="window.location.href='/game'"id="game-option">1 Player</button>
-        
-        <button id="game-option"> 2 Players</button>
-        <button onClick="newGame()" id="newGameBtn">New Game</button>
-
-        <button id="continueGameBtn">Continue Game</button>
-        <button onClick="location.href='{{ url_for('profile') }}'" id="viewProfileBtn">View Profile</button>
-
-        <button onClick="window.location.href='/logout'"id="logoutBtn">Logout</button>
-
-
-
-
-        
-    </div>
+    </header>
+    <main>
+        <h1 id="minesweeper-title"> Minesweeper 🚩💣</h1>
+        <h2>Welcome, {{current_user.name}}</h2>
+        <div class="game-options">
+            <button onClick="window.location.href='/game'" id="game-option">1 Player</button>
+            <button onClick = "window.location.href='/game2p'" id ="game-option">2 Players</button>
+<!--            <button onclick="location.href='/new_game_or_join'">2 Players</button>-->
+            <!--            <button onClick="newGame()" id="newGameBtn">New Game</button>-->
+<!--            <button id="continueGameBtn">Continue Game</button>-->
+        </div>
+    </main>
     <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
 </body>
 </html>
