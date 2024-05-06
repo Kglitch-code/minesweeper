@@ -11,8 +11,8 @@ let flag = false;
 let gameOver = false;
 
 var socket = io.connect('/');
-let roomCode = ''
 let playerCount = 0
+// let roomCode = ''
 
 window.onload = function(){
     startGame();
@@ -29,14 +29,15 @@ window.onload = function(){
 socket.on('connect', function(){
     //create new game if
     if(playerCount < 2) {
-        socket.emit('new_game_or_join', {room_code: roomCode});
-        console.log({game_id: game_id}, {room_code:roomCode}, )
+        // socket.emit('new_game_or_join', {room_code: roomCode});
+        console.log( {room_code:roomCode})
+        socket.emit('join_game', data = { "room_code": roomCode, "username": user, "game_id": "3"});
         socket.emit('waiting_for_player') //wait for another player
         playerCount +=1;
     }
     if (playerCount = 1) {
         console.log({ room_code: roomCode })
-        socket.emit('join_game', { room_code: roomCode });
+        socket.emit('join_game', data = { "room_code": roomCode, "username": user, "game_id": "3"});
         playerCount +=1;
         socket.emit('game_ready') //game ready to play
     }

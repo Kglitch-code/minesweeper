@@ -311,8 +311,8 @@ def game():
 @login_required
 def game2p(room_code):
     print(room_code)
-    #return render_template('index2p.html',room_code = room_code, user=User.query.get(current_user.user_id))
-    return render_template('index2p.html')
+    return render_template('index2p.html',room_code = room_code, user=User.query.get(current_user.user_id))
+    # return render_template('index2p.html')
 
 #join the new room
 @app.route('/new_game_or_join')
