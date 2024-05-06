@@ -311,8 +311,8 @@ def game():
 @login_required
 def game2p(room_code):
     print(room_code)
-    return render_template('index2p.html',room_code = room_code, user=User.query.get(current_user.user_id))
-
+    #return render_template('index2p.html',room_code = room_code, user=User.query.get(current_user.user_id))
+    return render_template('index2p.html')
 
 #join the new room
 @app.route('/new_game_or_join')
@@ -380,21 +380,20 @@ def handle_message(data):
     print('received message: ' + data)
     emit('response', {'data': 'Server received: ' + data})
 
-##join game handling
-# socketio.on('join_game')
-# def handle_join_game(data):
-#     print(data)
-#     join_room(data['game_id'])
-#     emit('join_confirmation', {'message': 'Joined game: ' + data['game_id']}, room=data['game_id'])
-
-#user joins a new room
-#not sure if to keep this one or handle_join_game
-@socketio.on('join')
-def on_join(data):
-    username = data['username']
-    room = data['game_id']
+#handle when new user joins game
+@socketio.on('join_game')
+def handle_join_game(data):
+    username = data.get('username')
+    game_id = data['game_id']
+    room = data['room_code']
     join_room(room)
-    send(username + ' has entered the room.room}', room=room)
+    # Notify all users in the room that a new player has joined
+    if username:
+        send(f"{username} has entered the game {game_id}.", room=room)
+    # Send a join confirmation to the user
+    emit('join_confirmation', {'message': f'Joined game: {game_id}'}, room=room)
+    print(f"{username if username else 'User'} joined game {game_id}")
+
 
 ##end game
 @socketio.on('end_game')

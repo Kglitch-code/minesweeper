@@ -11,15 +11,38 @@ let flag = false;
 let gameOver = false;
 
 var socket = io.connect('/');
+let roomCode = ''
+let playerCount = 0
 
 window.onload = function(){
     startGame();
 }
 
-socket.on('connect', function() {
-    // Join the game room using the room code from the Flask template
-    console.log({ room_code: roomCode })
-    socket.emit('join_game', { room_code: roomCode });
+///////////////////////////////////////////////////
+///NOTE
+//gameStatus does not update on the html side but its supposed to for game ready and waiting for player
+//not sure how to fix this rn
+////////////////////////////////////
+
+//connect players
+//both join the same room (currently different boards
+socket.on('connect', function(){
+    //create new game if
+    if(playerCount < 2) {
+        socket.emit('new_game_or_join', {room_code: roomCode});
+        console.log({game_id: game_id}, {room_code:roomCode}, )
+        socket.emit('waiting_for_player') //wait for another player
+        playerCount +=1;
+    }
+    if (playerCount = 1) {
+        console.log({ room_code: roomCode })
+        socket.emit('join_game', { room_code: roomCode });
+        playerCount +=1;
+        socket.emit('game_ready') //game ready to play
+    }
+    if (playerCount > 2){
+        console.log("error, room is full", {room_code:roomCode});
+    }
 });
 
 socket.on('join_confirmation', function(data) {
