@@ -83,7 +83,7 @@ class GameRoom(db.Model):
     room_code = db.Column(db.String(10), unique=True)
     player_count = db.Column(db.Integer, default=1)  # Count of current players in the room
 
-game = db.relationship('Game', backref=db.backref('room', uselist=False, cascade="all, delete"))
+    game = db.relationship('Game', backref=db.backref('room', uselist=False, cascade="all, delete"))
 
 
 # model view for all the tables for admin
