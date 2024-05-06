@@ -1,3 +1,4 @@
+from datetime import datetime
 from random import randint
 from flask import session
 from flask import Flask, render_template, redirect, url_for, request
@@ -130,12 +131,7 @@ class GameResultModelView(BaseModelView):
     can_edit = True
     can_delete = True
     can_export = True
-    ## game_id = db.Column(db.Integer, db.ForeignKey('games.id'), primary_key=True)
-    #winner_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    #loser_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    #game = db.relationship('Game', backref=db.backref('results', lazy=True))
-    #winner = db.relationship('User', foreign_keys=[winner_id], backref=db.backref('wins', lazy='dynamic'))
-    #loser =
+
     # Fields to display in the form
 
     form_columns = ['game_id', 'winner_id', 'loser_id', 'game', 'winner', 'loser']
@@ -384,25 +380,58 @@ def handle_message(data):
     print('received message: ' + data)
     emit('response', {'data': 'Server received: ' + data})
 
-socketio.on('join_game')
-def handle_join_game(data):
-    print(data)
-    join_room(data['game_id'])
-    emit('join_confirmation', {'message': 'Joined game: ' + data['game_id']}, room=data['game_id'])
+##join game handling
+# socketio.on('join_game')
+# def handle_join_game(data):
+#     print(data)
+#     join_room(data['game_id'])
+#     emit('join_confirmation', {'message': 'Joined game: ' + data['game_id']}, room=data['game_id'])
 
-@socketio.on('end_game')
-def handle_end_game(data):
-    game = Game(result=data['result'], end_time=datetime.utcnow())
-    db.session.add(game)
-    db.session.commit()
-    emit('game_over', {'result': data['result']}, room=data['game_id'])
 #user joins a new room
+#not sure if to keep this one or handle_join_game
 @socketio.on('join')
 def on_join(data):
     username = data['username']
     room = data['game_id']
     join_room(room)
     send(username + ' has entered the room.room}', room=room)
+
+##end game
+@socketio.on('end_game')
+def handle_end_game(data):
+    # Extract the ids from the data given
+    winner_id = data['result']['winner_id']
+    loser_id = data['result']['loser_id']
+    game_id = data['game_id']
+    room = data['room']
+
+    # Find the current game being played
+    game = Game.query.get(game_id)
+    if game is None:
+        # error handling
+        emit('error', {'message': 'Game not found'}, room=game_id)
+        return
+
+    # update game time
+    game.end_time = datetime.utcnow()
+
+    # create/update game result
+    #should be a new game result because none created before now
+    game_result = GameResult.query.get(game_id)
+    if game_result:
+        game_result.winner_id = winner_id
+        game_result.loser_id = loser_id
+    else:
+        # Create a new GameResult since it doesn't exist
+        game_result = GameResult(game_id=game_id, winner_id=winner_id, loser_id=loser_id)
+        db.session.add(game_result)
+
+    # Commit to db
+    db.session.commit()
+
+    #notify that game ended and result
+    emit('game_over', {'result': data['result']}, room=room)
+
 
 #user leaves the room
 @socketio.on('leave')
@@ -416,5 +445,4 @@ def on_leave(data):
 ########game run###############
 
 if __name__ == '__main__':
-    # app.run(debug=True)
     socketio.run(app, debug=True)

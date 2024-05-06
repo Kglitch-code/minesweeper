@@ -98,17 +98,38 @@ function startGame(){
     console.log(board);
 }
 
-function winGame(){
+//winner of the game and send to the backend
+function winGame(gameId, currentUserId, opponentId){
     revealAll(true);
     alert("You Won")
-    socket.emit('message', "Game Won");
+
+    //parse the data by game_id, winner is current user, loser is opposite id
+    const data = {
+        game_id: gameId,
+        result: {
+            winner_id: currentUserId, //user who triggered this is winner
+            loser_id: opponentId,
+            room: roomCode
+        }
+    };
+    socket.emit('end_game', data);
     return;
 }
 
-function LoseGame(){
+//loser of the game and send to backend
+function LoseGame(gameId, currentUserId, opponentId){
     revealAll(false);
     alert("You Lost")
-    socket.emit('message', "Game Lost");
+    //send data to backend
+    const data = {
+        game_id: gameId,
+        result: {
+            winner_id: currentUserId, //user who triggered this function is loser
+            loser_id: opponentId,
+            room: roomCode
+        }
+    };
+    socket.emit('end_game', data);
     return;
 }
 
