@@ -248,7 +248,7 @@ def dashboard():
 @app.route('/profile')
 @login_required
 def profile():
-    # Fetch user profile data
+    # user profile
     user_profile = User.query.filter_by(user_id=current_user.user_id).first()
 
     # Calculate wins and losses
