@@ -32,24 +32,34 @@ socket.on('connect', function(){
         // socket.emit('new_game_or_join', {room_code: roomCode});
         console.log( {room_code:roomCode})
         socket.emit('join_game', data = { "room_code": roomCode, "username": username, "game_id": "3"});
-        socket.emit('waiting_for_player') //wait for another player
+       // socket.emit('waiting_for_player') //wait for another player
         playerCount +=1;
     }
-    if (playerCount = 1) {
+    if (playerCount == 1) {
         console.log({ room_code: roomCode })
         socket.emit('join_game', data = { "room_code": roomCode, "username": username, "game_id": "3"});
         playerCount +=1;
-        socket.emit('game_ready') //game ready to play
+       // socket.emit('game_ready') //game ready to play
     }
     if (playerCount > 2){
         console.log("error, room is full", {room_code:roomCode});
     }
 });
 
+//var playerCounter = 0;
 socket.on('join_confirmation', function(data) {
+    let playerCounter = data.numUsersInRoom
+    console.log(playerCounter);
     console.log(data.message);
-    document.getElementById('gameStatus').textContent = 'Game ready! Waiting for other player...';
+    if (playerCounter = 1){
+        document.getElementById('gameStatus').textContent = 'Game ready! Waiting for other player...';
+    }
+    else if (playerCounter = 2){
+        document.getElementById('gameStatus').textContent = 'Both players have joined';
+    }
 });
+
+
 
 
 
@@ -59,15 +69,15 @@ socket.on("response", function(msg) {
 });
 
 
-socket.on('waiting_for_player', function(data) {
-    console.log(data.message);
-    document.getElementById('gameStatus').textContent = data.message;
-});
-
-socket.on('game_ready', function(data) {
-    console.log(data.message);
-    document.getElementById('gameStatus').textContent = data.message;
-});
+// socket.on('waiting_for_player', function(data) {
+//     console.log(data.message);
+//     document.getElementById('gameStatus').textContent = data.message;
+// });
+//
+// socket.on('game_ready', function(data) {
+//     console.log(data.message);
+//     document.getElementById('gameStatus').textContent = data.message;
+// });
 
 // Additional handling for game_over event if applicable
 socket.on('game_over', function(msg) {

@@ -335,6 +335,7 @@ def new_game_or_join():
         new_game_room = GameRoom(game_id=new_game.id, room_code=new_room_code, player_count=1)
         db.session.add(new_game_room)
         db.session.commit()
+
         return redirect(url_for('game2p', room_code=new_room_code))
 
 
@@ -387,13 +388,19 @@ def handle_join_game(data):
     game_id = data['game_id']
     room = data['room_code']
     join_room(room)
+    numUsersInRoom = len(socketio.server.manager.rooms['/'][room])
     # Notify all users in the room that a new player has joined
     if username:
-        send(f"{username} has entered the game {game_id}.", room=room)
+        send(f"{username} has entered the game {game_id}.", room=room, numUsersInRoom=numUsersInRoom)
     # Send a join confirmation to the user
     emit('join_confirmation', {'message': f'Joined game: {game_id}'}, room=room)
     print(f"{username if username else 'User'} joined game {game_id}")
 
+
+@socketio.on('game_ready')
+def game_ready(data):
+    print('received message: ' + data)
+    emit('response', {'data': 'Server received: ' + data})
 
 ##end game
 @socketio.on('end_game')
