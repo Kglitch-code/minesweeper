@@ -12,26 +12,13 @@ let gameOver = false;
 
 var socket = io.connect('/');
 
-// var socket = io();
-//socket.on('connect', function() {
-   // console.log("Connected")
-   // socket.emit('message', "Hello there, Testing");
-//});
-
-socket.on("response", function(msg){
-    console.log("response:")
-    console.log(msg)
-})
-
 window.onload = function(){
     startGame();
 }
 
-var roomCode = "{{ room_code }}";
-
-
 socket.on('connect', function() {
     // Join the game room using the room code from the Flask template
+    console.log({ room_code: roomCode })
     socket.emit('join_game', { room_code: roomCode });
 });
 

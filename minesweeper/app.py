@@ -1,4 +1,5 @@
 import eventlet
+eventlet.monkey_patch()
 from random import randint
 from flask import session
 from flask import Flask, render_template, redirect, url_for, request
@@ -18,8 +19,6 @@ from sqlalchemy import or_
 from flask_login import LoginManager
 from flask_admin import Admin
 from flask_socketio import SocketIO, emit, join_room, leave_room, send
-
-eventlet.monkey_patch()
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///yourdatabase.db'
@@ -314,9 +313,11 @@ def game():
 #####################################
 ######### 2 player stuff ################
 ###################################
-@app.route('/game2p')
-def game2p():
-    return render_template('index2p.html')
+@app.route('/game2p/<room_code>')
+@login_required
+def game2p(room_code):
+    print(room_code)
+    return render_template('index2p.html',room_code = room_code, user=User.query.get(current_user.user_id))
 
 
 #join the new room
@@ -385,10 +386,11 @@ def handle_message(data):
     print('received message: ' + data)
     emit('response', {'data': 'Server received: ' + data})
 
-# socketio.on('join_game')
-# def handle_join_game(data):
-#     join_room(data['game_id'])
-#     emit('join_confirmation', {'message': 'Joined game: ' + data['game_id']}, room=data['game_id'])
+socketio.on('join_game')
+def handle_join_game(data):
+    print(data)
+    join_room(data['game_id'])
+    emit('join_confirmation', {'message': 'Joined game: ' + data['game_id']}, room=data['game_id'])
 
 @socketio.on('end_game')
 def handle_end_game(data):
