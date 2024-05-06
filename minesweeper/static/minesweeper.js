@@ -10,65 +10,16 @@ let flag = false;
 
 let gameOver = false;
 
-//var socket = io.connect('/');
 
-// var socket = io();
-//socket.on('connect', function() {
-   // console.log("Connected")
-   // socket.emit('message', "Hello there, Testing");
-//});
 
-/*socket.on("response", function(msg){
-    console.log("response:")
-    console.log(msg)
-})*/
+var socket = io();
+    socket.on('connect', function() {
+        socket.emit('my event', {"data": "'I'm connected!'"});
+    });
 
 window.onload = function(){
     startGame();
 }
-
-//websocket stuff
-/*
-var roomCode = "{{ room_code }}";
-
-
-socket.on('connect', function() {
-    // Join the game room using the room code from the Flask template
-    socket.emit('join_game', { room_code: roomCode });
-});
-
-socket.on('join_confirmation', function(data) {
-    console.log(data.message);
-    document.getElementById('gameStatus').textContent = 'Game ready! Waiting for other player...';
-});
-
-
-
-// Handle custom server responses
-socket.on("response", function(msg) {
-    console.log("Server response:", msg);
-});
-
-
-socket.on('waiting_for_player', function(data) {
-    console.log(data.message);
-    document.getElementById('gameStatus').textContent = data.message;
-});
-
-socket.on('game_ready', function(data) {
-    console.log(data.message);
-    document.getElementById('gameStatus').textContent = data.message;
-});
-
-// Additional handling for game_over event if applicable
-socket.on('game_over', function(msg) {
-    console.log(msg.message);
-    document.getElementById('gameStatus').textContent = 'Game Over: ' + msg.result;
-});
-*/
-
-
-
 
 function addMines(){
     let minesRemain = mines;
@@ -117,14 +68,12 @@ function startGame(){
 function winGame(){
     revealAll(true);
     alert("You Won")
-   // socket.emit('message', "Game Won");
     return;
 }
 
 function LoseGame(){
     revealAll(false);
     alert("You Lost")
-   // socket.emit('message', "Game Lost");
     return;
 }
 
@@ -281,7 +230,6 @@ function tileClear(i, j){
         }
         else{
             let num = getNearbyTilesNum(i, j);
-           // socket.emit('message', "Clear: " +i+", "+j);
             if(num != 0){
                 board[i][j].className = "tile clicked bomb-" + num;
                 board[i][j].innerHTML = num;
@@ -305,14 +253,12 @@ function tileFlag(i, j){
         board[i][j].innerHTML = "🚩";
         minesRemaining-=1;
         setMinesCount();
-       // socket.emit('message', "Flag: " +i+", "+j);
     }
     else if(board[i][j].className == "tile flag"){
         board[i][j].className = "tile blank";
         board[i][j].innerHTML = "";
         minesRemaining+=1;
         setMinesCount();
-       // socket.emit('message', "unFlag: " +i+", "+j);
     }
     return;
 }
@@ -329,4 +275,3 @@ function spacePressed(i, j){
     }
     return;
 }
-
