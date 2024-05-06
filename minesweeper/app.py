@@ -1,3 +1,4 @@
+import eventlet
 from random import randint
 from flask import session
 from flask import Flask, render_template, redirect, url_for, request
@@ -17,6 +18,8 @@ from sqlalchemy import or_
 from flask_login import LoginManager
 from flask_admin import Admin
 from flask_socketio import SocketIO, emit, join_room, leave_room, send
+
+eventlet.monkey_patch()
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///yourdatabase.db'
@@ -413,5 +416,5 @@ def on_leave(data):
 ########game run###############
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # app.run(debug=True)
     socketio.run(app, debug=True)
