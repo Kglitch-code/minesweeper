@@ -10,7 +10,7 @@ let flag = false;
 
 let gameOver = false;
 
-var socket = io.connect('/');
+//var socket = io.connect('/');
 
 // var socket = io();
 //socket.on('connect', function() {
@@ -18,15 +18,17 @@ var socket = io.connect('/');
    // socket.emit('message', "Hello there, Testing");
 //});
 
-socket.on("response", function(msg){
+/*socket.on("response", function(msg){
     console.log("response:")
     console.log(msg)
-})
+})*/
 
 window.onload = function(){
     startGame();
 }
 
+//websocket stuff
+/*
 var roomCode = "{{ room_code }}";
 
 
@@ -63,6 +65,7 @@ socket.on('game_over', function(msg) {
     console.log(msg.message);
     document.getElementById('gameStatus').textContent = 'Game Over: ' + msg.result;
 });
+*/
 
 
 
@@ -114,14 +117,14 @@ function startGame(){
 function winGame(){
     revealAll(true);
     alert("You Won")
-    socket.emit('message', "Game Won");
+   // socket.emit('message', "Game Won");
     return;
 }
 
 function LoseGame(){
     revealAll(false);
     alert("You Lost")
-    socket.emit('message', "Game Lost");
+   // socket.emit('message', "Game Lost");
     return;
 }
 
@@ -278,7 +281,7 @@ function tileClear(i, j){
         }
         else{
             let num = getNearbyTilesNum(i, j);
-            socket.emit('message', "Clear: " +i+", "+j);
+           // socket.emit('message', "Clear: " +i+", "+j);
             if(num != 0){
                 board[i][j].className = "tile clicked bomb-" + num;
                 board[i][j].innerHTML = num;
@@ -302,14 +305,14 @@ function tileFlag(i, j){
         board[i][j].innerHTML = "🚩";
         minesRemaining-=1;
         setMinesCount();
-        socket.emit('message', "Flag: " +i+", "+j);
+       // socket.emit('message', "Flag: " +i+", "+j);
     }
     else if(board[i][j].className == "tile flag"){
         board[i][j].className = "tile blank";
         board[i][j].innerHTML = "";
         minesRemaining+=1;
         setMinesCount();
-        socket.emit('message', "unFlag: " +i+", "+j);
+       // socket.emit('message', "unFlag: " +i+", "+j);
     }
     return;
 }

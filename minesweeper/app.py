@@ -16,7 +16,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy import or_
 from flask_login import LoginManager
 from flask_admin import Admin
-from flask_socketio import SocketIO, emit, join_room, leave_room, send
+
+# // from flask_socketio import SocketIO, emit, join_room, leave_room, send
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///yourdatabase.db'
@@ -28,7 +29,7 @@ login_manager.login_view = 'login'
 admin = Admin(app, name='MyApp', template_mode='bootstrap3')
 
 # Initialize SocketIO
-socketio = SocketIO(app)
+#socketio = SocketIO(app)
 
 
 # database models for the user,
@@ -130,12 +131,7 @@ class GameResultModelView(BaseModelView):
     can_edit = True
     can_delete = True
     can_export = True
-    ## game_id = db.Column(db.Integer, db.ForeignKey('games.id'), primary_key=True)
-    #winner_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    #loser_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    #game = db.relationship('Game', backref=db.backref('results', lazy=True))
-    #winner = db.relationship('User', foreign_keys=[winner_id], backref=db.backref('wins', lazy='dynamic'))
-    #loser =
+
     # Fields to display in the form
 
     form_columns = ['game_id', 'winner_id', 'loser_id', 'game', 'winner', 'loser']
@@ -316,29 +312,29 @@ def game2p():
     return render_template('index2p.html')
 
 
-#join the new room
-@app.route('/new_game_or_join')
-def new_game_or_join():
-    #room capacity is 2
-    available_room = GameRoom.query.filter(GameRoom.player_count < 2).first()
-    if available_room:
-        available_room.player_count += 1 #commit join to room
-        db.session.commit()
-        if available_room.player_count == 2: #start game/room full
-            # Emit event to all clients in this room that the game is ready
-            socketio.emit('game_ready', {'message': 'All players connected. Game starting...'}, room=available_room.room_code)
-        return redirect(url_for('game2p', room_code=available_room.room_code))
-    else:
-        #create new game for 1 player
-        new_game = Game()
-        db.session.add(new_game)
-        db.session.flush()
-        new_room_code = str(randint(1000, 9999))
-        new_game_room = GameRoom(game_id=new_game.id, room_code=new_room_code, player_count=1)
-        db.session.add(new_game_room)
-        db.session.commit()
-        return redirect(url_for('game2p', room_code=new_room_code))
-
+# #join the new room
+# @app.route('/new_game_or_join')
+# def new_game_or_join():
+#     #room capacity is 2
+#     available_room = GameRoom.query.filter(GameRoom.player_count < 2).first()
+#     if available_room:
+#         available_room.player_count += 1 #commit join to room
+#         db.session.commit()
+#         if available_room.player_count == 2: #start game/room full
+#             # Emit event to all clients in this room that the game is ready
+#             socketio.emit('game_ready', {'message': 'All players connected. Game starting...'}, room=available_room.room_code)
+#         return redirect(url_for('game2p', room_code=available_room.room_code))
+#     else:
+#         #create new game for 1 player
+#         new_game = Game()
+#         db.session.add(new_game)
+#         db.session.flush()
+#         new_room_code = str(randint(1000, 9999))
+#         new_game_room = GameRoom(game_id=new_game.id, room_code=new_room_code, player_count=1)
+#         db.session.add(new_game_room)
+#         db.session.commit()
+#         return redirect(url_for('game2p', room_code=new_room_code))
+#
 
 #############################################
 
@@ -377,41 +373,41 @@ def add_cache_control_headers(response):
 ###########################
 #socketio stuff
 ########################
-@socketio.on('message')
-def handle_message(data):
-    print('received message: ' + data)
-    emit('response', {'data': 'Server received: ' + data})
+# @socketio.on('message')
+# def handle_message(data):
+#     print('received message: ' + data)
+#     emit('response', {'data': 'Server received: ' + data})
 
 # socketio.on('join_game')
 # def handle_join_game(data):
 #     join_room(data['game_id'])
 #     emit('join_confirmation', {'message': 'Joined game: ' + data['game_id']}, room=data['game_id'])
 
-@socketio.on('end_game')
-def handle_end_game(data):
-    game = Game(result=data['result'], end_time=datetime.utcnow())
-    db.session.add(game)
-    db.session.commit()
-    emit('game_over', {'result': data['result']}, room=data['game_id'])
-#user joins a new room
-@socketio.on('join')
-def on_join(data):
-    username = data['username']
-    room = data['game_id']
-    join_room(room)
-    send(username + ' has entered the room.room}', room=room)
-
-#user leaves the room
-@socketio.on('leave')
-def on_leave(data):
-    username = data['username']
-    room = data['game_id']
-    leave_room(room)
-    send(username + ' has left the room.', room=room)
+# @socketio.on('end_game')
+# def handle_end_game(data):
+#     game = Game(result=data['result'], end_time=datetime.utcnow())
+#     db.session.add(game)
+#     db.session.commit()
+#     emit('game_over', {'result': data['result']}, room=data['game_id'])
+# #user joins a new room
+# @socketio.on('join')
+# def on_join(data):
+#     username = data['username']
+#     room = data['game_id']
+#     join_room(room)
+#     send(username + ' has entered the room.room}', room=room)
+#
+# #user leaves the room
+# @socketio.on('leave')
+# def on_leave(data):
+#     username = data['username']
+#     room = data['game_id']
+#     leave_room(room)
+#     send(username + ' has left the room.', room=room)
 
 
 ########game run###############
 
 if __name__ == '__main__':
     app.run(debug=True)
-    socketio.run(app, debug=True)
+    #socketio.run(app, debug=True)
