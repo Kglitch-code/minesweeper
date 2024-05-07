@@ -9,9 +9,20 @@
     
     <body>
         <div class="header">
+        <div class="subHeader">
             <h1>Minesweeper</h1>
+            <div class="user-info" onclick="location.href='{{ url_for('profile') }}'">
+            <div class="subHeader">
+                <img src="{{ url_for('static', filename='images/' + current_user.profile_image) }}" alt="Profile Picture" class="profile-pic">
+                <span>{{current_user.name}}</span>
+                <div class="opponentContainer"></div>
+            </div>
+            </div>
+        </div>
+        <div class="subHeader">
             <button onclick="window.location.href='/dashboard'" id="returnBtn">← Return to Dashboard</button>
             <div id="gameStatus"></div>
+        </div>
         </div>
 
         <!-- <h2>Leaderboard</h2>

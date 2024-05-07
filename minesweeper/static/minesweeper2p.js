@@ -359,3 +359,37 @@ function spacePressed(i, j){
     return;
 }
 
+// Function to create a new card for each opponent
+function createCard(index, title) {
+    // Create a new card element
+    var card = document.createElement("div");
+    card.setAttribute("class", "card");
+    card.setAttribute("style", "display: inline-block; margin: 20px; vertical-align: top");
+
+    // Construct the card body HTML
+    card.innerHTML = '<div class="card-body">' +
+        '<h2>' + title + '</h2>' +
+        '<form class="configForm" id="configForm' + index + '" action="/update_variable" method="POST">' +
+        '<input type="hidden" class="variable_name" id="variable_name' + index + '" name="variable_name" value="">' +
+        '<input type="text" class="new_value" id="new_value' + index + '" name="new_value" value="" style="display: none;">' +
+        '<button type="submit" class="btn btn-primary submitButton" id="submitButton' + index + '">Submit</button>' +
+        '</form>' +
+        '</div>';
+
+    // Return the created card
+    return card;
+}
+
+// Example usage: Create a new card for each opponent
+var opponentContainer = document.getElementById("opponentContainer"); // Assuming there's a container element for opponents
+
+// Example: Assuming you have a list of opponent titles
+var opponentTitles = ["Opponent 1", "Opponent 2", "Opponent 3"];
+
+// Create a card for each opponent
+for (var i = 0; i < opponentTitles.length; i++) {
+    var newCard = createCard(i, opponentTitles[i]);
+    opponentContainer.appendChild(newCard); // Append the new card to the container
+}
+
+
