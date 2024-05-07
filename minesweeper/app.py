@@ -428,6 +428,16 @@ def clearSquare(data):
     userID = data['userID']
     emit('clear', {'i': i, 'j' : j}, room=room_code)
 
+@socketio.on('setMines')
+def addMines(data):
+    mines = data['mines']
+    room_code = data['room_code']
+    userid = data['userid']
+    i = data['i']
+    j = data['j']
+    print(mines)
+    emit('setMines', {"mines":mines, "id": userid, 'i': i, 'j' : j}, room=room_code)
+
 
 ##end game
 @socketio.on('end_game')

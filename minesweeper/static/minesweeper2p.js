@@ -8,6 +8,7 @@ let squaresRemaining = rows*columns-mines;
 let mineLocation = [];
 let flag = false;
 
+let gameStarted = false;
 let gameOver = false;
 
 var socket = io.connect('/');
@@ -100,9 +101,32 @@ socket.on('flag', function(data){
 
 socket.on('clear', function(data){
     // console.log(data)
+    while(mineLocation.length == 0){
+        setTimeout(() => {  }, 1);
+
+    }
     tileClear(data["i"], data["j"])
 })
 
+socket.on('setMines', function(data){
+    console.log(data)
+    if(data["id"] !== userid){
+        addMinesFromArray(data["mines"])
+        console.log("Dif ID")
+    }
+    else{
+        console.log("same ID")
+    }
+    socket.emit('clear', { "room_code": roomCode, "i": data["i"], "j":data["j"], "userID": data["id"]})
+})
+
+
+function addMinesFromArray(mineArray){
+    // alert(mineArray)
+    let minesRemain = mines;
+    mineLocation =mineArray;
+    // alert(mineLocation)
+}
 
 function addMines(){
     let minesRemain = mines;
@@ -116,6 +140,24 @@ function addMines(){
             minesRemain --;
         }
     }
+    return mineLocation
+}
+
+function addMinesCoordinate(i, j){
+    let minesRemain = mines;
+    while(minesRemain > 0){
+        let r = Math.floor(Math.random() * rows);
+        let c = Math.floor(Math.random() * columns);
+        let id = r.toString() + "-" + c.toString();
+
+        if(!mineLocation.includes(id)){
+            if(r < i-1 || r > i+1 || c < j-1 || c > j+1){
+                mineLocation.push(id);
+                minesRemain --;
+            }
+        }
+    }
+    return mineLocation
 }
 
 function setMinesCount(){
@@ -126,7 +168,6 @@ function startGame(){
 
     //counts the mines 
     setMinesCount();
-    addMines();
 
     //populates the board with blank divs
     for (let i = 0; i < rows; i++) {
@@ -226,7 +267,14 @@ document.addEventListener("click", function(e) {
         let i = parseInt(coords[0])
         let j = parseInt(coords[1])
         // tileClear(parseInt(coords[0]), parseInt(coords[1]));
-        socket.emit('clear', { "room_code": roomCode, "i": i.toString(), "j":j.toString(), "userID": userid})
+        if (! gameStarted){
+            minesArray = addMines(i, j)
+            socket.emit('setMines', {"mines": minesArray, "room_code": roomCode, "i": i.toString(), "j":j.toString(), "userid": userid.toString()})
+            gameStarted = true
+        }
+        else{
+            socket.emit('clear', { "room_code": roomCode, "i": i.toString(), "j":j.toString(), "userID": userid})
+        }                
         // revealAll();
     }
     else{
@@ -259,6 +307,8 @@ document.addEventListener("contextmenu", function(e) {
 //=============================================
 
 function getNearbyTilesNum(x, y){
+    x = parseInt(x)
+    y = parseInt(y)
     let num = 0;
     for(let i = x-1; i <= x+1; i++){
         if(i >= 0 && i < rows){
@@ -271,7 +321,7 @@ function getNearbyTilesNum(x, y){
             }
         }
     }
-    return num
+    return num;
 }
 
 function getNearbyFlagsNum(x, y){
