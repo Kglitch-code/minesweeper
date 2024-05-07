@@ -15,6 +15,10 @@ var socket = io.connect('/');
 let playerCount = 0
 let game_id = 0
 
+var opponentId;
+var opponentName;
+var opponentPicture;
+
 window.onload = function(){
     startGame();
 }
@@ -56,6 +60,7 @@ socket.on('room_join_confirmation', function(data) {
     }
     else if (playerCounter == 2){
         document.getElementById('gameStatus').textContent = 'Both players have joined';
+        socket.emit("playerList", {"room_code": roomCode, "userID": userid})
     }
 });
 
@@ -75,6 +80,17 @@ socket.on('game_join_confirmation', function(data) {
 // Handle custom server responses
 socket.on("response", function(msg) {
     // console.log("Server response:", msg);
+});
+
+socket.on('getOpponent', function(data){
+    if(data["userID"] !== userid){
+        opponentId = data["userID"]
+        opponentName = data["username"]
+        opponentPicture = data["picture"]
+        console.log("Opponent: "+opponentId)
+        console.log("Opponent name: "+opponentName)
+        console.log("Opponent picture: "+ opponentPicture)
+    }
 });
 
 

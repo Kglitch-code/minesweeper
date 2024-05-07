@@ -409,6 +409,14 @@ def handle_join_game(data):
 # def game_ready(data):
 #     print('received message: ' + data)
 #     emit('response', {'data': 'Server received: ' + data})
+@socketio.on('playerList')
+def playerList(data):
+    room_code = data['room_code']
+    userID = data['userID']
+    print(userID)
+    user = User.query.get(int(userID))
+
+    emit('getOpponent', {'userID' : userID, 'username': user.name, 'picture':user.profile_image}, room=room_code)
 
 @socketio.on('flag')
 def flagSquare(data):
