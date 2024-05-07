@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='sign-up.css') }}">
+</head>
+<body>
+    <div class="border">
+        <div class="header">
+            <h1 class="word">Register</h1>
+        </div>
+        <form action="{{ url_for('register') }}" method="post">
+          <div class="msg">{{ msg }}</div>
+          <input id="name" name="name" type="text" placeholder="Name" class="textbox" required/><br><br>
+          <input id="username" name="username" type="text" placeholder="Username" class="textbox" required/><br><br>
+          <input id="email" name="email" type="email" placeholder="Email" class="textbox" required pattern="[^@]+@[^@]+\.[^@]+" title="Email must include '@' and domain name"/><br><br>
+          <input id="password" name="password" type="password" placeholder="Password" class="textbox" required/><br><br>
+            <label>Select your profile picture:</label><br>
+            <input type="radio" id="profile_pic1" name="profile_image" value="profile_pic1.png" checked>
+            <label for="profile_pic1"><img src="{{ url_for('static', filename='images/profile_pic1.png') }}" alt="Profile Pic 1" class="profile-img"></label>
+            <input type="radio" id="profile_pic2" name="profile_image" value="profile_pic2.png">
+            <label for="profile_pic2"><img src="{{ url_for('static', filename='images/profile_pic2.png') }}" alt="Profile Pic 2" class="profile-img"></label>
+            <input type="radio" id="profile_pic3" name="profile_image" value="profile_pic3.png">
+            <label for="profile_pic3"><img src="{{ url_for('static', filename='images/profile_pic3.png') }}" alt="Profile Pic 3" class="profile-img"></label><br><br>
+          <input type="submit" class="btn" value="Sign Up"><br>
+      </form>
+        <p class="bottom">Already have an account? <a href="{{url_for('login')}}">Login</a></p>
+    </div>
+</body>
+</html>

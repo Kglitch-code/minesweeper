@@ -301,6 +301,43 @@ def login():
     # For GET requests or failed login attempts
     return render_template('login-teacher.html')
 
+#function for sign up
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        username = request.form.get('username')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        profile_image = request.form.get('profile_image', 'default_pic.png')  # Default image if none selected
+
+        existing_user = User.query.filter((User.username == username) | (User.email == email)).first()
+        if existing_user:
+            flash('Username or email already exists.')
+            return redirect(url_for('register'))
+
+        # Create new user instance
+        new_user = User(
+            name=name,
+            username=username,
+            email=email,
+            profile_image=profile_image  # Save selected profile image
+        )
+        new_user.set_password(password)
+
+        # Add to the database
+        db.session.add(new_user)
+        db.session.commit()
+
+        # Log in the user
+        login_user(new_user)
+
+        Flask('Registration successful!')
+        return render_template('dashboard.html')  # Redirect to a different page after registration
+
+    return render_template('sign_up.html')
+
 
 @app.route('/game', methods=['GET', 'POST'])
 def game():
