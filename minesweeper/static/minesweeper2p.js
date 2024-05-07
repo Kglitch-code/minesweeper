@@ -236,8 +236,8 @@ function LoseGame(gameId, currentUserId, opponentId){
     const data = {
         game_id: gameId,
         result: {
-            winner_id: currentUserId, //user who triggered this function is loser
-            loser_id: opponentId,
+            winner_id: opponentId, //user who triggered this function is loser
+            loser_id: currentUserId,
             room: roomCode
         }
     };
