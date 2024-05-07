@@ -96,7 +96,7 @@ socket.on('game_over', function(msg) {
 
 socket.on('flag', function(data){
     // console.log(data)
-    tileFlag(data["i"], data["j"])
+    tileFlag(parseInt(data["i"]), parseInt(data["j"]))
 })
 
 socket.on('clear', function(data){
@@ -105,7 +105,7 @@ socket.on('clear', function(data){
         setTimeout(() => {  }, 1);
 
     }
-    tileClear(data["i"], data["j"])
+    tileClear(parseInt(data["i"]), parseInt(data["j"]))
 })
 
 socket.on('setMines', function(data){
@@ -117,6 +117,7 @@ socket.on('setMines', function(data){
     else{
         console.log("same ID")
     }
+    console.log("i"+ data["i"])
     socket.emit('clear', { "room_code": roomCode, "i": data["i"], "j":data["j"], "userID": data["id"]})
 })
 
@@ -152,8 +153,12 @@ function addMinesCoordinate(i, j){
 
         if(!mineLocation.includes(id)){
             if(r < i-1 || r > i+1 || c < j-1 || c > j+1){
+                console.log("Added "+r+", "+c)
                 mineLocation.push(id);
                 minesRemain --;
+            }
+            else{
+                console.log("Didn't add "+r+", "+c)
             }
         }
     }
@@ -267,12 +272,13 @@ document.addEventListener("click", function(e) {
         let i = parseInt(coords[0])
         let j = parseInt(coords[1])
         // tileClear(parseInt(coords[0]), parseInt(coords[1]));
-        if (! gameStarted){
-            minesArray = addMines(i, j)
+        if (gameStarted == false){
+            minesArray = addMinesCoordinate(i, j)
             socket.emit('setMines', {"mines": minesArray, "room_code": roomCode, "i": i.toString(), "j":j.toString(), "userid": userid.toString()})
             gameStarted = true
         }
         else{
+            console.log("hi")
             socket.emit('clear', { "room_code": roomCode, "i": i.toString(), "j":j.toString(), "userID": userid})
         }                
         // revealAll();
