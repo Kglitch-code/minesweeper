@@ -145,6 +145,9 @@ document.addEventListener("click", function(e) {
             tileClear(i, j);
             gameStarted = true
         }
+        else{
+            tileClear(i, j);
+        }
         // revealAll();
     }
     else{
