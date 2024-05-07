@@ -116,3 +116,13 @@ button:hover {
 #editPic:hover {
     background-color: #ffca4b;
 }
+.top-bar {
+    position: fixed;
+    top: 0;
+    left: 80;
+    right: 0; /* ensures it extends fully across the top */
+    padding: 10px 20px;
+    z-index: 1000;
+    background-color: lightgray;
+    text-align: right;
+}
