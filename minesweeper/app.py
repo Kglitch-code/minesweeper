@@ -381,26 +381,53 @@ def handle_message(data):
     print('received message: ' + data)
     emit('response', {'data': 'Server received: ' + data})
 
+@socketio.on('join_room')
+def handle_join_game(data):
+    room = data['room_code']
+    join_room(room)
+    numUsersInRoom = len(socketio.server.manager.rooms['/'][room])
+    emit('room_join_confirmation', {"numUsersInRoom":numUsersInRoom}, room=room)
+
+
 #handle when new user joins game
 @socketio.on('join_game')
 def handle_join_game(data):
     username = data.get('username')
     game_id = data['game_id']
     room = data['room_code']
-    join_room(room)
+    # join_room(room)
     numUsersInRoom = len(socketio.server.manager.rooms['/'][room])
     # Notify all users in the room that a new player has joined
     if username:
-        send(f"{username} has entered the game {game_id}.", room=room, numUsersInRoom=numUsersInRoom)
+        send(f"{username} has entered the game {game_id}.", room=room)
     # Send a join confirmation to the user
-    emit('join_confirmation', {'message': f'Joined game: {game_id}'}, room=room)
+    emit('join_confirmation', {'message': f'Joined game: {game_id}', "numUsersInRoom":numUsersInRoom}, room=room)
     print(f"{username if username else 'User'} joined game {game_id}")
 
 
-@socketio.on('game_ready')
-def game_ready(data):
-    print('received message: ' + data)
-    emit('response', {'data': 'Server received: ' + data})
+# @socketio.on('game_ready')
+# def game_ready(data):
+#     print('received message: ' + data)
+#     emit('response', {'data': 'Server received: ' + data})
+
+@socketio.on('flag')
+def flagSquare(data):
+    print(data)
+    i = data['i']
+    j = data['j']
+    room_code = data['room_code']
+    userID = data['userID']
+    emit('flag', {'i': i, 'j' : j}, room=room_code)
+
+@socketio.on('clear')
+def clearSquare(data):
+    print(data)
+    i = data['i']
+    j = data['j']
+    room_code = data['room_code']
+    userID = data['userID']
+    emit('clear', {'i': i, 'j' : j}, room=room_code)
+
 
 ##end game
 @socketio.on('end_game')

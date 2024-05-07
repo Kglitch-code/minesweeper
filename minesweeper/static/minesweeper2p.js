@@ -12,7 +12,7 @@ let gameOver = false;
 
 var socket = io.connect('/');
 let playerCount = 0
-// let roomCode = ''
+let game_id = 0
 
 window.onload = function(){
     startGame();
@@ -27,45 +27,53 @@ window.onload = function(){
 //connect players
 //both join the same room (currently different boards
 socket.on('connect', function(){
+    socket.emit('join_room', data = { "room_code": roomCode})
     //create new game if
-    if(playerCount < 2) {
-        // socket.emit('new_game_or_join', {room_code: roomCode});
-        console.log( {room_code:roomCode})
-        socket.emit('join_game', data = { "room_code": roomCode, "username": username, "game_id": "3"});
-       // socket.emit('waiting_for_player') //wait for another player
-        playerCount +=1;
-    }
-    if (playerCount == 1) {
-        console.log({ room_code: roomCode })
-        socket.emit('join_game', data = { "room_code": roomCode, "username": username, "game_id": "3"});
-        playerCount +=1;
-       // socket.emit('game_ready') //game ready to play
-    }
-    if (playerCount > 2){
-        console.log("error, room is full", {room_code:roomCode});
-    }
+    // if(playerCount < 2) {
+    //     // socket.emit('new_game_or_join', {room_code: roomCode});
+    //     console.log( {room_code:roomCode})
+    //     socket.emit('join_game', data = { "room_code": roomCode, "username": username, "game_id": "3"});
+    //    // socket.emit('waiting_for_player') //wait for another player
+    //     playerCount +=1;
+    // }
+    // if (playerCount == 1) {
+    //     console.log({ room_code: roomCode })
+    //     socket.emit('join_game', data = { "room_code": roomCode, "username": username, "game_id": "3"});
+    //     playerCount +=1;
+    //    // socket.emit('game_ready') //game ready to play
+    // }
+    // if (playerCount > 2){
+    //     console.log("error, room is full", {room_code:roomCode});
+    // }
 });
 
-//var playerCounter = 0;
-socket.on('join_confirmation', function(data) {
+socket.on('room_join_confirmation', function(data) {
     let playerCounter = data.numUsersInRoom
     console.log(playerCounter);
-    console.log(data.message);
-    if (playerCounter = 1){
+    if (playerCounter == 1){
         document.getElementById('gameStatus').textContent = 'Game ready! Waiting for other player...';
     }
-    else if (playerCounter = 2){
+    else if (playerCounter == 2){
         document.getElementById('gameStatus').textContent = 'Both players have joined';
     }
 });
 
-
-
-
+//var playerCounter = 0;
+socket.on('game_join_confirmation', function(data) {
+    let playerCounter = data.numUsersInRoom
+    console.log(playerCounter);
+    console.log(data.message);
+    if (playerCounter == 1){
+        document.getElementById('gameStatus').textContent = 'Game ready! Waiting for other player...';
+    }
+    else if (playerCounter == 2){
+        document.getElementById('gameStatus').textContent = 'Both players have joined';
+    }
+});
 
 // Handle custom server responses
 socket.on("response", function(msg) {
-    console.log("Server response:", msg);
+    // console.log("Server response:", msg);
 });
 
 
@@ -85,7 +93,15 @@ socket.on('game_over', function(msg) {
     document.getElementById('gameStatus').textContent = 'Game Over: ' + msg.result;
 });
 
+socket.on('flag', function(data){
+    // console.log(data)
+    tileFlag(data["i"], data["j"])
+})
 
+socket.on('clear', function(data){
+    // console.log(data)
+    tileClear(data["i"], data["j"])
+})
 
 
 function addMines(){
@@ -129,7 +145,7 @@ function startGame(){
         board.push(row);
     }
 
-    console.log(board);
+    // console.log(board);
 }
 
 //winner of the game and send to the backend
@@ -192,7 +208,9 @@ document.addEventListener("keyup", function(e) {
         if(hoveredTile){
             // console.log('Space bar pressed over:', hoveredTile.id);
             let coords = hoveredTile.id.split("-");
-            spacePressed(parseInt(coords[0]), parseInt(coords[1]));
+            let i = parseInt(coords[0])
+            let j = parseInt(coords[1])
+            spacePressed(i, j);
         }
         else{
             // console.log("Space bar pressed over nothing")
@@ -205,7 +223,10 @@ document.addEventListener("click", function(e) {
     if(hoveredTile){
         // console.log('Left Click pressed over:', hoveredTile.id);
         let coords = hoveredTile.id.split("-");
-        tileClear(parseInt(coords[0]), parseInt(coords[1]));
+        let i = parseInt(coords[0])
+        let j = parseInt(coords[1])
+        // tileClear(parseInt(coords[0]), parseInt(coords[1]));
+        socket.emit('clear', { "room_code": roomCode, "i": i.toString(), "j":j.toString(), "userID": userid})
         // revealAll();
     }
     else{
@@ -219,7 +240,11 @@ document.addEventListener("contextmenu", function(e) {
         e.preventDefault();
         // console.log('Right Click pressed over:', hoveredTile.id);
         let coords = hoveredTile.id.split("-");
-        tileFlag(parseInt(coords[0]), parseInt(coords[1]));
+        let i = parseInt(coords[0])
+        let j = parseInt(coords[1])
+        // tileFlag(parseInt(coords[0]), parseInt(coords[1]));
+        socket.emit('flag', { "room_code": roomCode, "i": i.toString(), "j":j.toString(), "userID": userid})
+
     }
     else{
         // console.log("Right Click pressed over nothing")
@@ -292,7 +317,7 @@ function revealAll(didWin){
                 }
             }
             else{
-                console.log(0);
+                // console.log(0);
             }
         }
     }
@@ -358,10 +383,13 @@ function tileFlag(i, j){
 
 function spacePressed(i, j){
     if(board[i][j].className == "tile blank"){
-        tileFlag(i, j);
+        // tileFlag(i, j);
+        socket.emit('flag', { "room_code": roomCode, "i": i.toString(), "j":j.toString(), "userID": userid})
+
     }
     else if(board[i][j].className == "tile flag"){
-        tileFlag(i, j);
+        socket.emit('flag', { "room_code": roomCode, "i": i.toString(), "j":j.toString(), "userID": userid})
+        // tileFlag(i, j);
     }
     else if(board[i][j].innerHTML == getNearbyFlagsNum(i,j)){
         clearSurrounding(i, j);
