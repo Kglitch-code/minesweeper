@@ -480,7 +480,7 @@ function createCard(index, title) {
     // Construct the card body HTML
     card.innerHTML = '<div class="card-body">' +
     '<h2>' + title + '</h2>' +
-    '<img src="{{ url_for("static", filename="images/" +) }}" alt="Opponent Picture" class="profile-pic">' +
+    // '<img src="{{ url_for("static", filename="images/" +) }}" alt="Opponent Picture" class="profile-pic">' +
     '<form class="configForm" id="configForm' + index + '" action="/update_variable" method="POST">' +
     '<input type="hidden" class="variable_name" id="variable_name' + index + '" name="variable_name" value="">' +
     '<input type="text" class="new_value" id="new_value' + index + '" name="new_value" value="" style="display: none;">' +
