@@ -13,7 +13,7 @@ let gameOver = false;
 
 var socket = io.connect('/');
 let playerCount = 0
-let game_id = 0
+// let game_id = 0
 
 var opponentId;
 var opponentName;
