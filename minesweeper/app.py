@@ -410,6 +410,25 @@ def handle_join_game(data):
 #     print('received message: ' + data)
 #     emit('response', {'data': 'Server received: ' + data})
 
+@socketio.on('flag')
+def flagSquare(data):
+    print(data)
+    i = data['i']
+    j = data['j']
+    room_code = data['room_code']
+    userID = data['userID']
+    emit('flag', {'i': i, 'j' : j}, room=room_code)
+
+@socketio.on('clear')
+def clearSquare(data):
+    print(data)
+    i = data['i']
+    j = data['j']
+    room_code = data['room_code']
+    userID = data['userID']
+    emit('clear', {'i': i, 'j' : j}, room=room_code)
+
+
 ##end game
 @socketio.on('end_game')
 def handle_end_game(data):

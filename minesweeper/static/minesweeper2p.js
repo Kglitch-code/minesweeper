@@ -73,7 +73,7 @@ socket.on('game_join_confirmation', function(data) {
 
 // Handle custom server responses
 socket.on("response", function(msg) {
-    console.log("Server response:", msg);
+    // console.log("Server response:", msg);
 });
 
 
@@ -93,7 +93,15 @@ socket.on('game_over', function(msg) {
     document.getElementById('gameStatus').textContent = 'Game Over: ' + msg.result;
 });
 
+socket.on('flag', function(data){
+    // console.log(data)
+    tileFlag(data["i"], data["j"])
+})
 
+socket.on('clear', function(data){
+    // console.log(data)
+    tileClear(data["i"], data["j"])
+})
 
 
 function addMines(){
@@ -137,7 +145,7 @@ function startGame(){
         board.push(row);
     }
 
-    console.log(board);
+    // console.log(board);
 }
 
 //winner of the game and send to the backend
@@ -200,7 +208,9 @@ document.addEventListener("keyup", function(e) {
         if(hoveredTile){
             // console.log('Space bar pressed over:', hoveredTile.id);
             let coords = hoveredTile.id.split("-");
-            spacePressed(parseInt(coords[0]), parseInt(coords[1]));
+            let i = parseInt(coords[0])
+            let j = parseInt(coords[1])
+            spacePressed(i, j);
         }
         else{
             // console.log("Space bar pressed over nothing")
@@ -213,7 +223,10 @@ document.addEventListener("click", function(e) {
     if(hoveredTile){
         // console.log('Left Click pressed over:', hoveredTile.id);
         let coords = hoveredTile.id.split("-");
-        tileClear(parseInt(coords[0]), parseInt(coords[1]));
+        let i = parseInt(coords[0])
+        let j = parseInt(coords[1])
+        // tileClear(parseInt(coords[0]), parseInt(coords[1]));
+        socket.emit('clear', { "room_code": roomCode, "i": i.toString(), "j":j.toString(), "userID": userid})
         // revealAll();
     }
     else{
@@ -227,7 +240,11 @@ document.addEventListener("contextmenu", function(e) {
         e.preventDefault();
         // console.log('Right Click pressed over:', hoveredTile.id);
         let coords = hoveredTile.id.split("-");
-        tileFlag(parseInt(coords[0]), parseInt(coords[1]));
+        let i = parseInt(coords[0])
+        let j = parseInt(coords[1])
+        // tileFlag(parseInt(coords[0]), parseInt(coords[1]));
+        socket.emit('flag', { "room_code": roomCode, "i": i.toString(), "j":j.toString(), "userID": userid})
+
     }
     else{
         // console.log("Right Click pressed over nothing")
@@ -300,7 +317,7 @@ function revealAll(didWin){
                 }
             }
             else{
-                console.log(0);
+                // console.log(0);
             }
         }
     }
@@ -366,10 +383,13 @@ function tileFlag(i, j){
 
 function spacePressed(i, j){
     if(board[i][j].className == "tile blank"){
-        tileFlag(i, j);
+        // tileFlag(i, j);
+        socket.emit('flag', { "room_code": roomCode, "i": i.toString(), "j":j.toString(), "userID": userid})
+
     }
     else if(board[i][j].className == "tile flag"){
-        tileFlag(i, j);
+        socket.emit('flag', { "room_code": roomCode, "i": i.toString(), "j":j.toString(), "userID": userid})
+        // tileFlag(i, j);
     }
     else if(board[i][j].innerHTML == getNearbyFlagsNum(i,j)){
         clearSurrounding(i, j);
