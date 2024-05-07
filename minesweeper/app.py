@@ -62,6 +62,9 @@ class Game(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
 
+    def get_id(self):
+        return str(self.id)
+
 
 #store the winner/loser of each game
 class GameResult(db.Model):
@@ -336,7 +339,11 @@ def new_game_or_join():
         db.session.add(new_game_room)
         db.session.commit()
 
-        return redirect(url_for('game2p', room_code=new_room_code))
+        new_game_id = new_game.get_id()
+        print("The game id:")
+        print(new_game_id)
+
+        return redirect(url_for('game2p', room_code=new_room_code, new_game_id=new_game_id))
 
 
 #############################################
