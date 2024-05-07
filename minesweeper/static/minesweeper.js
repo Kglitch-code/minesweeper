@@ -8,10 +8,18 @@ let squaresRemaining = rows*columns-mines;
 let mineLocation = [];
 let flag = false;
 
+let gameStarted = false;
 let gameOver = false;
 
 window.onload = function(){
     startGame();
+}
+
+function addMinesFromArray(mineArray){
+    // alert(mineArray)
+    let minesRemain = mines;
+    mineLocation =mineArray;
+    // alert(mineLocation)
 }
 
 function addMines(){
@@ -26,6 +34,28 @@ function addMines(){
             minesRemain --;
         }
     }
+    return mineLocation
+}
+    
+function addMinesCoordinate(i, j){
+    let minesRemain = mines;
+    while(minesRemain > 0){
+        let r = Math.floor(Math.random() * rows);
+        let c = Math.floor(Math.random() * columns);
+        let id = r.toString() + "-" + c.toString();
+
+        if(!mineLocation.includes(id)){
+            if(r < i-1 || r > i+1 || c < j-1 || c > j+1){
+                console.log("Added "+r+", "+c)
+                mineLocation.push(id);
+                minesRemain --;
+            }
+            else{
+                console.log("Didn't add "+r+", "+c)
+            }
+        }
+    }
+    return mineLocation
 }
 
 function setMinesCount(){
@@ -36,7 +66,6 @@ function startGame(){
 
     //counts the mines 
     setMinesCount();
-    addMines();
 
     //populates the board with blank divs
     for (let i = 0; i < rows; i++) {
@@ -55,7 +84,7 @@ function startGame(){
         board.push(row);
     }
 
-    console.log(board);
+    // console.log(board);
 }
 
 function winGame(){
@@ -108,7 +137,14 @@ document.addEventListener("click", function(e) {
     if(hoveredTile){
         // console.log('Left Click pressed over:', hoveredTile.id);
         let coords = hoveredTile.id.split("-");
-        tileClear(parseInt(coords[0]), parseInt(coords[1]));
+        let i = parseInt(coords[0])
+        let j = parseInt(coords[1])
+        // tileClear(parseInt(coords[0]), parseInt(coords[1]));
+        if (gameStarted == false){
+            minesArray = addMinesCoordinate(i, j)
+            tileClear(i, j);
+            gameStarted = true
+        }
         // revealAll();
     }
     else{
@@ -137,6 +173,8 @@ document.addEventListener("contextmenu", function(e) {
 //=============================================
 
 function getNearbyTilesNum(x, y){
+    x = parseInt(x)
+    y = parseInt(y)
     let num = 0;
     for(let i = x-1; i <= x+1; i++){
         if(i >= 0 && i < rows){
@@ -195,7 +233,7 @@ function revealAll(didWin){
                 }
             }
             else{
-                console.log(0);
+                // console.log(0);
             }
         }
     }

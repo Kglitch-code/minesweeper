@@ -169,12 +169,12 @@ function addMinesCoordinate(i, j){
 
         if(!mineLocation.includes(id)){
             if(r < i-1 || r > i+1 || c < j-1 || c > j+1){
-                console.log("Added "+r+", "+c)
+                // console.log("Added "+r+", "+c)
                 mineLocation.push(id);
                 minesRemain --;
             }
             else{
-                console.log("Didn't add "+r+", "+c)
+                // console.log("Didn't add "+r+", "+c)
             }
         }
     }
@@ -294,7 +294,7 @@ document.addEventListener("click", function(e) {
             gameStarted = true
         }
         else{
-            console.log("hi")
+            // console.log("hi")
             socket.emit('clear', { "room_code": roomCode, "i": i.toString(), "j":j.toString(), "userID": userid})
         }                
         // revealAll();
