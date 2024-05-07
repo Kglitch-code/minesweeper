@@ -8,11 +8,16 @@ let squaresRemaining = rows*columns-mines;
 let mineLocation = [];
 let flag = false;
 
+let gameStarted = false;
 let gameOver = false;
 
 var socket = io.connect('/');
 let playerCount = 0
-// let roomCode = ''
+let game_id = 0
+
+var opponentId;
+var opponentName;
+var opponentPicture;
 
 window.onload = function(){
     startGame();
@@ -27,47 +32,77 @@ window.onload = function(){
 //connect players
 //both join the same room (currently different boards
 socket.on('connect', function(){
+    socket.emit('join_room', data = { "room_code": roomCode})
     //create new game if
-    if(playerCount < 2) {
-        // socket.emit('new_game_or_join', {room_code: roomCode});
-        console.log( {room_code:roomCode})
-        socket.emit('join_game', data = { "room_code": roomCode, "username": user, "game_id": "3"});
-        socket.emit('waiting_for_player') //wait for another player
-        playerCount +=1;
+    // if(playerCount < 2) {
+    //     // socket.emit('new_game_or_join', {room_code: roomCode});
+    //     console.log( {room_code:roomCode})
+    //     socket.emit('join_game', data = { "room_code": roomCode, "username": username, "game_id": "3"});
+    //    // socket.emit('waiting_for_player') //wait for another player
+    //     playerCount +=1;
+    // }
+    // if (playerCount == 1) {
+    //     console.log({ room_code: roomCode })
+    //     socket.emit('join_game', data = { "room_code": roomCode, "username": username, "game_id": "3"});
+    //     playerCount +=1;
+    //    // socket.emit('game_ready') //game ready to play
+    // }
+    // if (playerCount > 2){
+    //     console.log("error, room is full", {room_code:roomCode});
+    // }
+});
+
+socket.on('room_join_confirmation', function(data) {
+    let playerCounter = data.numUsersInRoom
+    console.log(playerCounter);
+    if (playerCounter == 1){
+        document.getElementById('gameStatus').textContent = 'Game ready! Waiting for other player...';
     }
-    if (playerCount = 1) {
-        console.log({ room_code: roomCode })
-        socket.emit('join_game', data = { "room_code": roomCode, "username": user, "game_id": "3"});
-        playerCount +=1;
-        socket.emit('game_ready') //game ready to play
-    }
-    if (playerCount > 2){
-        console.log("error, room is full", {room_code:roomCode});
+    else if (playerCounter == 2){
+        document.getElementById('gameStatus').textContent = 'Both players have joined';
+        socket.emit("playerList", {"room_code": roomCode, "userID": userid})
     }
 });
 
-socket.on('join_confirmation', function(data) {
+//var playerCounter = 0;
+socket.on('game_join_confirmation', function(data) {
+    let playerCounter = data.numUsersInRoom
+    console.log(playerCounter);
     console.log(data.message);
-    document.getElementById('gameStatus').textContent = 'Game ready! Waiting for other player...';
+    if (playerCounter == 1){
+        document.getElementById('gameStatus').textContent = 'Game ready! Waiting for other player...';
+    }
+    else if (playerCounter == 2){
+        document.getElementById('gameStatus').textContent = 'Both players have joined';
+    }
 });
-
-
 
 // Handle custom server responses
 socket.on("response", function(msg) {
-    console.log("Server response:", msg);
+    // console.log("Server response:", msg);
+});
+
+socket.on('getOpponent', function(data){
+    if(data["userID"] !== userid){
+        opponentId = data["userID"]
+        opponentName = data["username"]
+        opponentPicture = data["picture"]
+        console.log("Opponent: "+opponentId)
+        console.log("Opponent name: "+opponentName)
+        console.log("Opponent picture: "+ opponentPicture)
+    }
 });
 
 
-socket.on('waiting_for_player', function(data) {
-    console.log(data.message);
-    document.getElementById('gameStatus').textContent = data.message;
-});
-
-socket.on('game_ready', function(data) {
-    console.log(data.message);
-    document.getElementById('gameStatus').textContent = data.message;
-});
+// socket.on('waiting_for_player', function(data) {
+//     console.log(data.message);
+//     document.getElementById('gameStatus').textContent = data.message;
+// });
+//
+// socket.on('game_ready', function(data) {
+//     console.log(data.message);
+//     document.getElementById('gameStatus').textContent = data.message;
+// });
 
 // Additional handling for game_over event if applicable
 socket.on('game_over', function(msg) {
@@ -75,8 +110,40 @@ socket.on('game_over', function(msg) {
     document.getElementById('gameStatus').textContent = 'Game Over: ' + msg.result;
 });
 
+socket.on('flag', function(data){
+    // console.log(data)
+    tileFlag(parseInt(data["i"]), parseInt(data["j"]))
+})
+
+socket.on('clear', function(data){
+    // console.log(data)
+    while(mineLocation.length == 0){
+        setTimeout(() => {  }, 1);
+
+    }
+    tileClear(parseInt(data["i"]), parseInt(data["j"]))
+})
+
+socket.on('setMines', function(data){
+    console.log(data)
+    if(data["id"] !== userid){
+        addMinesFromArray(data["mines"])
+        console.log("Dif ID")
+    }
+    else{
+        console.log("same ID")
+    }
+    console.log("i"+ data["i"])
+    socket.emit('clear', { "room_code": roomCode, "i": data["i"], "j":data["j"], "userID": data["id"]})
+})
 
 
+function addMinesFromArray(mineArray){
+    // alert(mineArray)
+    let minesRemain = mines;
+    mineLocation =mineArray;
+    // alert(mineLocation)
+}
 
 function addMines(){
     let minesRemain = mines;
@@ -90,6 +157,28 @@ function addMines(){
             minesRemain --;
         }
     }
+    return mineLocation
+}
+
+function addMinesCoordinate(i, j){
+    let minesRemain = mines;
+    while(minesRemain > 0){
+        let r = Math.floor(Math.random() * rows);
+        let c = Math.floor(Math.random() * columns);
+        let id = r.toString() + "-" + c.toString();
+
+        if(!mineLocation.includes(id)){
+            if(r < i-1 || r > i+1 || c < j-1 || c > j+1){
+                console.log("Added "+r+", "+c)
+                mineLocation.push(id);
+                minesRemain --;
+            }
+            else{
+                console.log("Didn't add "+r+", "+c)
+            }
+        }
+    }
+    return mineLocation
 }
 
 function setMinesCount(){
@@ -100,7 +189,6 @@ function startGame(){
 
     //counts the mines 
     setMinesCount();
-    addMines();
 
     //populates the board with blank divs
     for (let i = 0; i < rows; i++) {
@@ -119,7 +207,7 @@ function startGame(){
         board.push(row);
     }
 
-    console.log(board);
+    // console.log(board);
 }
 
 //winner of the game and send to the backend
@@ -182,7 +270,9 @@ document.addEventListener("keyup", function(e) {
         if(hoveredTile){
             // console.log('Space bar pressed over:', hoveredTile.id);
             let coords = hoveredTile.id.split("-");
-            spacePressed(parseInt(coords[0]), parseInt(coords[1]));
+            let i = parseInt(coords[0])
+            let j = parseInt(coords[1])
+            spacePressed(i, j);
         }
         else{
             // console.log("Space bar pressed over nothing")
@@ -195,7 +285,18 @@ document.addEventListener("click", function(e) {
     if(hoveredTile){
         // console.log('Left Click pressed over:', hoveredTile.id);
         let coords = hoveredTile.id.split("-");
-        tileClear(parseInt(coords[0]), parseInt(coords[1]));
+        let i = parseInt(coords[0])
+        let j = parseInt(coords[1])
+        // tileClear(parseInt(coords[0]), parseInt(coords[1]));
+        if (gameStarted == false){
+            minesArray = addMinesCoordinate(i, j)
+            socket.emit('setMines', {"mines": minesArray, "room_code": roomCode, "i": i.toString(), "j":j.toString(), "userid": userid.toString()})
+            gameStarted = true
+        }
+        else{
+            console.log("hi")
+            socket.emit('clear', { "room_code": roomCode, "i": i.toString(), "j":j.toString(), "userID": userid})
+        }                
         // revealAll();
     }
     else{
@@ -209,7 +310,11 @@ document.addEventListener("contextmenu", function(e) {
         e.preventDefault();
         // console.log('Right Click pressed over:', hoveredTile.id);
         let coords = hoveredTile.id.split("-");
-        tileFlag(parseInt(coords[0]), parseInt(coords[1]));
+        let i = parseInt(coords[0])
+        let j = parseInt(coords[1])
+        // tileFlag(parseInt(coords[0]), parseInt(coords[1]));
+        socket.emit('flag', { "room_code": roomCode, "i": i.toString(), "j":j.toString(), "userID": userid})
+
     }
     else{
         // console.log("Right Click pressed over nothing")
@@ -224,6 +329,8 @@ document.addEventListener("contextmenu", function(e) {
 //=============================================
 
 function getNearbyTilesNum(x, y){
+    x = parseInt(x)
+    y = parseInt(y)
     let num = 0;
     for(let i = x-1; i <= x+1; i++){
         if(i >= 0 && i < rows){
@@ -236,7 +343,7 @@ function getNearbyTilesNum(x, y){
             }
         }
     }
-    return num
+    return num;
 }
 
 function getNearbyFlagsNum(x, y){
@@ -282,7 +389,7 @@ function revealAll(didWin){
                 }
             }
             else{
-                console.log(0);
+                // console.log(0);
             }
         }
     }
@@ -348,10 +455,13 @@ function tileFlag(i, j){
 
 function spacePressed(i, j){
     if(board[i][j].className == "tile blank"){
-        tileFlag(i, j);
+        // tileFlag(i, j);
+        socket.emit('flag', { "room_code": roomCode, "i": i.toString(), "j":j.toString(), "userID": userid})
+
     }
     else if(board[i][j].className == "tile flag"){
-        tileFlag(i, j);
+        socket.emit('flag', { "room_code": roomCode, "i": i.toString(), "j":j.toString(), "userID": userid})
+        // tileFlag(i, j);
     }
     else if(board[i][j].innerHTML == getNearbyFlagsNum(i,j)){
         clearSurrounding(i, j);
@@ -359,6 +469,7 @@ function spacePressed(i, j){
     return;
 }
 
+// Function to create a new card for each opponent
 // Function to create a new card for each opponent
 function createCard(index, title) {
     // Create a new card element
@@ -368,28 +479,35 @@ function createCard(index, title) {
 
     // Construct the card body HTML
     card.innerHTML = '<div class="card-body">' +
-        '<h2>' + title + '</h2>' +
-        '<form class="configForm" id="configForm' + index + '" action="/update_variable" method="POST">' +
-        '<input type="hidden" class="variable_name" id="variable_name' + index + '" name="variable_name" value="">' +
-        '<input type="text" class="new_value" id="new_value' + index + '" name="new_value" value="" style="display: none;">' +
-        '<button type="submit" class="btn btn-primary submitButton" id="submitButton' + index + '">Submit</button>' +
-        '</form>' +
-        '</div>';
+    '<h2>' + title + '</h2>' +
+    '<img src="{{ url_for("static", filename="images/" +) }}" alt="Opponent Picture" class="profile-pic">' +
+    '<form class="configForm" id="configForm' + index + '" action="/update_variable" method="POST">' +
+    '<input type="hidden" class="variable_name" id="variable_name' + index + '" name="variable_name" value="">' +
+    '<input type="text" class="new_value" id="new_value' + index + '" name="new_value" value="" style="display: none;">' +
+    '</form>' +
+    '</div>';
 
     // Return the created card
     return card;
 }
 
-// Example usage: Create a new card for each opponent
-var opponentContainer = document.getElementById("opponentContainer"); // Assuming there's a container element for opponents
-
-// Example: Assuming you have a list of opponent titles
-var opponentTitles = ["Opponent 1", "Opponent 2", "Opponent 3"];
-
-// Create a card for each opponent
-for (var i = 0; i < opponentTitles.length; i++) {
-    var newCard = createCard(i, opponentTitles[i]);
-    opponentContainer.appendChild(newCard); // Append the new card to the container
+// Create a new card for each opponent
+var opponentContainer = document.querySelector(".opponentContainer"); // Update to use class selector
+if (opponentContainer) {
+    socket.on('getOpponent', function(data){
+        if(data["userID"] !== userid){
+            opponentId = data["userID"]
+            opponentName = data["username"]
+            opponentPicture = data["picture"]
+            console.log("Opponent: " + opponentId)
+            console.log("Opponent name: " + opponentName)
+            console.log("Opponent picture: " + opponentPicture)
+            
+            // Create a card for the opponent
+            var newCard = createCard(opponentId, opponentName); 
+            opponentContainer.appendChild(newCard); // Append the new card to the container
+        }
+    });
+} else {
+    console.error("Container element '.opponentContainer' not found.");
 }
-
-

@@ -335,6 +335,7 @@ def new_game_or_join():
         new_game_room = GameRoom(game_id=new_game.id, room_code=new_room_code, player_count=1)
         db.session.add(new_game_room)
         db.session.commit()
+
         return redirect(url_for('game2p', room_code=new_room_code))
 
 
@@ -380,19 +381,70 @@ def handle_message(data):
     print('received message: ' + data)
     emit('response', {'data': 'Server received: ' + data})
 
+@socketio.on('join_room')
+def handle_join_game(data):
+    room = data['room_code']
+    join_room(room)
+    numUsersInRoom = len(socketio.server.manager.rooms['/'][room])
+    emit('room_join_confirmation', {"numUsersInRoom":numUsersInRoom}, room=room)
+
+
 #handle when new user joins game
 @socketio.on('join_game')
 def handle_join_game(data):
     username = data.get('username')
     game_id = data['game_id']
     room = data['room_code']
-    join_room(room)
+    # join_room(room)
+    numUsersInRoom = len(socketio.server.manager.rooms['/'][room])
     # Notify all users in the room that a new player has joined
     if username:
         send(f"{username} has entered the game {game_id}.", room=room)
     # Send a join confirmation to the user
-    emit('join_confirmation', {'message': f'Joined game: {game_id}'}, room=room)
+    emit('join_confirmation', {'message': f'Joined game: {game_id}', "numUsersInRoom":numUsersInRoom}, room=room)
     print(f"{username if username else 'User'} joined game {game_id}")
+
+
+# @socketio.on('game_ready')
+# def game_ready(data):
+#     print('received message: ' + data)
+#     emit('response', {'data': 'Server received: ' + data})
+@socketio.on('playerList')
+def playerList(data):
+    room_code = data['room_code']
+    userID = data['userID']
+    print(userID)
+    user = User.query.get(int(userID))
+
+    emit('getOpponent', {'userID' : userID, 'username': user.name, 'picture':user.profile_image}, room=room_code)
+
+@socketio.on('flag')
+def flagSquare(data):
+    print(data)
+    i = data['i']
+    j = data['j']
+    room_code = data['room_code']
+    userID = data['userID']
+    emit('flag', {'i': i, 'j' : j}, room=room_code)
+
+@socketio.on('clear')
+def clearSquare(data):
+    print(data)
+    i = data['i']
+    j = data['j']
+    room_code = data['room_code']
+    userID = data['userID']
+    emit('clear', {'i': i, 'j' : j}, room=room_code)
+
+@socketio.on('setMines')
+def addMines(data):
+    mines = data['mines']
+    room_code = data['room_code']
+    userid = data['userid']
+    i = data['i']
+    j = data['j']
+    print(mines)
+    emit('setMines', {"mines":mines, "id": userid, 'i': i, 'j' : j}, room=room_code)
 
 
 ##end game
